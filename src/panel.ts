@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import * as Message from './message';
 
 console.clear();
 console.log('test');
@@ -9,39 +10,17 @@ const backgroundPageConnection = chrome.runtime.connect({
 });
 
 backgroundPageConnection.postMessage({
-  name: 'init',
+  command: 'init',
   tabId: chrome.devtools.inspectedWindow.tabId,
 });
 
 
-backgroundPageConnection.onMessage.addListener((message)=>{
-  if (message.command && message.command === 'putimglist') {
-    const imglist = JSON.parse(message.imglist);
+backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
+  if (message.command === 'putimglist') {
+    const imglist = message.imglist;
     imglist.map((x) => $('#list').append(`<li>${x}</li>`));
   }
 });
-
-/*
-chrome.tabs.executeScript(chrome.devtools.inspectedWindow.tabId, {
-  file: './contentScript.js',
-}, () => {
-  const port = chrome.runtime.connect({
-    name: `${chrome.devtools.inspectedWindow.tabId}`,
-  });
-
-  port.onMessage.addListener((message) => {
-    console.log(message);
-  });
-  /*
-  port.postMessage({
-    hoge:123
-  });
-});
-  */
-
-
-// 受信
-
 
 /*
 //なんで動かねぇ

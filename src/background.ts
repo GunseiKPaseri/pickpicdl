@@ -1,14 +1,16 @@
+import * as Message from './message';
 // (panel<==>background)connections
 const connections : {[key:string]: chrome.runtime.Port} = {};
 
 // panel => background
 chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
-  const extensionListener = (mes: any, sender: chrome.runtime.Port) => {
-    if (mes.name === 'init') {
-      connections[mes.tabId] = port;
-    }
-    //
-  };
+  const extensionListener =
+    (mes: Message.Message, sender: chrome.runtime.Port) => {
+      if (mes.command === 'init') {
+        connections[mes.tabId] = port;
+      }
+      //
+    };
   port.onMessage.addListener(extensionListener);
   // Delete
   port.onDisconnect.addListener((port) => {
