@@ -64,7 +64,8 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
               imglist[key].filename.length - ext.length ) {
             imglist[key].filename += ext;
           }
-          $target.find('input').val(imglist[key].filename ?? '');
+          $target.find('a').attr('download', imglist[key].filename);
+          $target.find('input').val(imglist[key].filename);
         });
         $('#list').append(`
           <tr data-href='${key}'>
@@ -72,7 +73,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
               <input type='checkbox'>
             </td>
             <td>
-              <a href='${key}' download>
+              <a href='${key}' download=${imglist[key].filename}>
                 <img src='${key}'/>
               </a>
             </td>
