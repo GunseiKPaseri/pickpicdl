@@ -1,6 +1,8 @@
 import $ from 'jquery';
 import * as Message from './message';
 import {mime2ext} from './mime2ext';
+import 'jszip';
+import JSZip from 'jszip';
 
 console.clear();
 console.log('test');
@@ -16,22 +18,28 @@ backgroundPageConnection.postMessage({
 });
 
 
-const imglink2Base64Url = (url: string ) =>
-  new Promise<[string, string | null]>((resolve, reject)=>{
+const imglink2Blob = (url: string ) =>
+  new Promise<[Blob, string | null]>((resolve, reject)=>{
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
-      const reader = new FileReader();
-      reader.readAsDataURL(xhr.response);
-      reader.onloadend = function() {
-        resolve([
-          reader.result as string,
-          xhr.getResponseHeader('content-type'),
-        ]);
-      };
+      resolve([
+        xhr.response as Blob,
+        xhr.getResponseHeader('content-type'),
+      ]);
     };
     xhr.open('GET', url);
     xhr.responseType = 'blob';
     xhr.send();
+  });
+
+const blob2base64 = (blob: Blob) =>
+  new Promise<string>((resolve, reject)=>{
+    const fileReader = new FileReader();
+    fileReader.onload = function() {
+      if (this.result === null) reject(new Error('can\'t blob2base64'));
+      resolve(this.result as string);
+    };
+    fileReader.readAsDataURL(blob);
   });
 
 
@@ -54,10 +62,9 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
         // newof
         imglist[key] = message.imglist[key];
         // getDataURL
-        imglink2Base64Url(key).then(([data64, type])=>{
-          imglist[key].dataURL = data64;
+        imglink2Blob(key).then(([blob, type])=>{
+          imglist[key].blob = blob;
           const $target = $(`tr[data-href="${key}"]`);
-          $target.find('img').attr('src', data64);
           $target.find('span').text('○');
           const ext = type ? mime2ext(type) : null;
           if (!ext) {
@@ -76,7 +83,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
         $('#list').append(`
           <tr data-href='${key}'>
             <td>
-              <input type='checkbox'>
+              <input class='imgchk' type='checkbox'>
             </td>
             <td>
               <a href='${key}' download=${imglist[key].filename}>
@@ -87,7 +94,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
               <input type='text' readonly value=${imglist[key].filename}>
             </td>
             <td>
-              <span>${(imglist[key].dataURL !== null ? '○' : '×')}</span>
+              <span>${(imglist[key].blob !== null ? '○' : '×')}</span>
             </td>
           </tr>`,
         );
@@ -95,6 +102,36 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
     }
   }
 });
+
+const restrictFileName = (name: string) =>
+  name.replace(/[\\\/:*?"<>|]/g, (c) => '%' + c.charCodeAt(0).toString(16));
+
+const generateZipBlob = (list: Message.PicObj[], name: string) => {
+  const zip = new JSZip();
+  console.log(list);
+  list.forEach((list) => {
+    if (list.blob!==null) {
+      zip.file(restrictFileName(list.filename), list.blob);
+    }
+  });
+  return zip.generateAsync({type: 'blob'});
+};
+
+$('#dlbutton').on('click', async ()=>{
+  const target = $('.imgchk:checked').map(function() {
+    return $(this).parent().parent().attr('data-href');
+  }).get().map((x)=>imglist[x]);
+
+  if (target.length === 0) {
+    $('#dllink').attr('href', '#');
+    $('#dllink').text(`選択しなさい`);
+    return;
+  }
+  const zipBlob = await generateZipBlob(target, 'archive.zip');
+  const zipBase64 = await blob2base64(zipBlob);
+  $('#dllink').attr('href', zipBase64);
+  $('#dllink').text(`ダウンロード(${(new Date()).toString()})`);
+})
 
 
 /*

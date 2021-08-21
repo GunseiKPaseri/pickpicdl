@@ -13,7 +13,7 @@ const sendImgList = () => {
       imgTrueUri.match(/.+\/(.+?)([\?#;].*)?$/)?.[1] || 'anyfile';
 
     imglist[imgTrueUri] = {
-      dataURL: null,
+      blob: null,
       filename: filename,
     };
   }
