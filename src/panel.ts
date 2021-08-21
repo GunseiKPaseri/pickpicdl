@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import * as Message from './message';
-import {mime2ext} from './mime2ext';
+import {changeExt, hasExt, mime2ext} from './mime2ext';
 import 'jszip';
 import JSZip from 'jszip';
 
@@ -19,13 +19,10 @@ backgroundPageConnection.postMessage({
 
 
 const imglink2Blob = (url: string ) =>
-  new Promise<[Blob, string | null]>((resolve, reject)=>{
+  new Promise<Blob>((resolve, reject)=>{
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
-      resolve([
-        xhr.response as Blob,
-        xhr.getResponseHeader('content-type'),
-      ]);
+      resolve(xhr.response as Blob);
     };
     xhr.open('GET', url);
     xhr.responseType = 'blob';
@@ -41,6 +38,31 @@ const blob2base64 = (blob: Blob) =>
     };
     fileReader.readAsDataURL(blob);
   });
+
+const blobImg2imgelement = (blob: Blob) => 
+  new Promise<HTMLImageElement>((resolve, reject)=>{
+    const blobURL = window.URL.createObjectURL(blob);
+    const image = new Image();
+    if(!image) reject(new Error('new Image()に失敗'));
+    image.onload = () => {
+      resolve(image);
+    };
+    image.src = blobURL;
+  });
+
+const imgelement2blob =
+  (imgElement: HTMLImageElement, mimeType: string, qualityArgument?: number) =>
+    new Promise<Blob>((resolve, reject)=>{
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.height = imgElement.height;
+      canvas.width = imgElement.width;
+      ctx?.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob)=>{
+        if (blob===null) reject(new Error('Blobを作成できませんでした'));
+        else resolve(blob);
+      }, mimeType, qualityArgument);
+    });
 
 
 let uri = '';
@@ -62,19 +84,18 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
         // newof
         imglist[key] = message.imglist[key];
         // getDataURL
-        imglink2Blob(key).then(([blob, type])=>{
+        imglink2Blob(key).then((blob)=>{
           imglist[key].blob = blob;
           const $target = $(`tr[data-href="${key}"]`);
           $target.find('span').text('○');
-          const ext = type ? mime2ext(type) : null;
+          const ext = mime2ext(blob.type);
           if (!ext) {
             // bad file
             delete imglist[key];
             $target.remove();
             return;
           }
-          if (ext && imglist[key].filename.lastIndexOf(ext) !==
-              imglist[key].filename.length - ext.length ) {
+          if (ext && hasExt(imglist[key].filename, ext) ) {
             imglist[key].filename += ext;
           }
           $target.find('a').attr('download', imglist[key].filename);
@@ -118,20 +139,31 @@ const generateZipBlob = (list: Message.PicObj[], name: string) => {
 };
 
 $('#dlbutton').on('click', async ()=>{
-  const target = $('.imgchk:checked').map(function() {
+  let target = $('.imgchk:checked').map(function() {
     return $(this).parent().parent().attr('data-href');
-  }).get().map((x)=>imglist[x]);
+  }).get().map((x)=>imglist[x]).flatMap((x) => (x.blob === null ? [] : [x]));
 
   if (target.length === 0) {
     $('#dllink').attr('href', '#');
     $('#dllink').text(`選択しなさい`);
     return;
   }
+
+  const mime = $('#imgconvert').val();
+  if (typeof mime === 'string' && mime !== '') {
+    const ext = mime2ext(mime);
+    target = await Promise.all(target.map(async (x) => {
+      if (x.blob.type === mime) return x;
+      const image = await blobImg2imgelement(x.blob);
+      const blob = await imgelement2blob(image, mime, 1);
+      return {filename: changeExt(x.filename, ext), blob};
+    }));
+  }
   const zipBlob = await generateZipBlob(target, 'archive.zip');
   const zipBase64 = await blob2base64(zipBlob);
   $('#dllink').attr('href', zipBase64);
   $('#dllink').text(`ダウンロード(${(new Date()).toString()})`);
-})
+});
 
 
 /*
