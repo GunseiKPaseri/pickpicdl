@@ -45,7 +45,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
       imglist = {};
       $('#list').html(`
         <tr>
-          <th></th><th>画像</th>><th>タイトル</th><th>getdata?</th>
+          <th></th><th>画像</th><th>タイトル</th><th>getdata?</th>
         </tr>`);
       uri = message.url;
     }
@@ -60,6 +60,12 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
           $target.find('img').attr('src', data64);
           $target.find('span').text('○');
           const ext = type ? mime2ext(type) : null;
+          if (!ext) {
+            // bad file
+            delete imglist[key];
+            $target.remove();
+            return;
+          }
           if (ext && imglist[key].filename.lastIndexOf(ext) !==
               imglist[key].filename.length - ext.length ) {
             imglist[key].filename += ext;
