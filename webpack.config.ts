@@ -15,28 +15,29 @@ const config: any = () => {
     output: {
       // buildディレクトリにcontent_scripts.jsを吐く
       path: path.join(__dirname, 'build'),
-      filename: '[name].js'
+      filename: '[name].js',
     },
     module: {
       rules: [
         {
           test: /.ts$/,
           use: 'ts-loader',
-          exclude: '/node_modules/'
-        }
-      ]
+          exclude: '/node_modules/',
+        },
+      ],
     },
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
     },
     plugins: [
       // publicディレクトリにあるファイルをdistディレクトリにコピーする
       new CopyWebpackPlugin({
         patterns: [
-        { from: 'public', to: '.' }
-      ]})
-    ]
-  }
-}
+          {from: 'public', to: '.'},
+        ],
+      }),
+    ],
+  };
+};
 
-export default config
+export default config;

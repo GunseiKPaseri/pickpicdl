@@ -1,4 +1,4 @@
-export type PicObj = {dataURL: string | null};
+export type PicObj = {dataURL: string | null, filename: string};
 
 export type MessageInit = {command: 'init', tabId: number};
 

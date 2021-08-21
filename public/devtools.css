@@ -1,0 +1,35 @@
+/* normalize css starts here */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* normalize css ends here */
+
+#list{
+    width: 100%;
+	border-collapse:collapse;
+}
+#list tr th{
+    background-color:#00cccc;
+    border-right: 1px solid #fff;
+    color:#fff;
+}
+#list tr td{
+    background-color:#f0f0f0;
+    border-right: 1px solid #fff;
+}
+#list tr *:last-child{
+    border: none;
+}
+
+#list tr:nth-child(odd) td{
+    background-color:#e0e0e0;
+}
+
+#list td img{
+    max-height: 100px;
+    max-width: 200px;
+}
