@@ -39,11 +39,11 @@ const blob2base64 = (blob: Blob) =>
     fileReader.readAsDataURL(blob);
   });
 
-const blobImg2imgelement = (blob: Blob) => 
+const blobImg2imgelement = (blob: Blob) =>
   new Promise<HTMLImageElement>((resolve, reject)=>{
     const blobURL = window.URL.createObjectURL(blob);
     const image = new Image();
-    if(!image) reject(new Error('new Image()に失敗'));
+    if (!image) reject(new Error('new Image()に失敗'));
     image.onload = () => {
       resolve(image);
     };
@@ -140,6 +140,7 @@ const generateZipBlob = (list: Message.PicObj[], name: string) => {
 
 $('#dlbutton').on('click', async ()=>{
   let target = $('.imgchk:checked').map(function() {
+    // eslint-disable-next-line no-invalid-this
     return $(this).parent().parent().attr('data-href');
   }).get().map((x)=>imglist[x]).flatMap((x) => (x.blob === null ? [] : [x]));
 
