@@ -1,14 +1,19 @@
+import * as Message from './message';
 const sendImgList = () => {
   console.log('読み込み終了');
-  const imglist = [];
+  const imglist: {[keyof: string]: Message.PicObj} = {};
 
   const imgElemetns = document.getElementsByTagName('img');
   for (let i = 0; i< imgElemetns.length; i++) {
     const imgUri = imgElemetns[i].getAttribute('src');
-    if (typeof imgUri === 'string' && imgUri !== '' )imglist.push(imgUri);
+    if (typeof imgUri === 'string' && imgUri !== '' )imglist[imgUri] = 'nan';
   }
   console.log(imglist);
-  const message = {command: 'putimglist', imglist: imglist};
+  const message: Message.MessagePicList = {
+    command: 'putimglist',
+    url: location.href,
+    imglist: imglist,
+  };
   // _port.postMessage(message);
   chrome.runtime.sendMessage(message, (res) =>{
     console.log(res);
@@ -17,4 +22,10 @@ const sendImgList = () => {
 
 window.addEventListener('load', function() {
   sendImgList();
+});
+
+chrome.runtime.onMessage.addListener(function(message, sender, callback) {
+  if (message.command === 'requestImgList') {
+    sendImgList();
+  }
 });

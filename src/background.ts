@@ -2,12 +2,16 @@ import * as Message from './message';
 // (panel<==>background)connections
 const connections : {[key:string]: chrome.runtime.Port} = {};
 
-// panel => background
+// panel => background => contentScript
 chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
   const extensionListener =
     (mes: Message.Message, sender: chrome.runtime.Port) => {
       if (mes.command === 'init') {
+        // panel => background
         connections[mes.tabId] = port;
+      } else if ('tabId' in mes ) {
+        // panel => background => contentScript (NEED tabId)
+        chrome.tabs.sendMessage(mes.tabId, mes, ()=>{});
       }
       //
     };
