@@ -1,4 +1,5 @@
 import * as Message from './message';
+
 const sendImgList = () => {
   console.log('読み込み終了');
   const imglist: {[keyof: string]: Message.PicObj} = {};
@@ -6,7 +7,13 @@ const sendImgList = () => {
   const imgElemetns = document.getElementsByTagName('img');
   for (let i = 0; i< imgElemetns.length; i++) {
     const imgUri = imgElemetns[i].getAttribute('src');
-    if (typeof imgUri === 'string' && imgUri !== '' )imglist[imgUri] = 'nan';
+    if (imgUri === null) continue;
+
+    const imgTrueUri:string = (new URL(imgUri, location.href)).toString();
+
+    imglist[imgTrueUri] = {
+      dataURL: null,
+    };
   }
   console.log(imglist);
   const message: Message.MessagePicList = {

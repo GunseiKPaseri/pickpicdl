@@ -14,7 +14,23 @@ backgroundPageConnection.postMessage({
   tabId: chrome.devtools.inspectedWindow.tabId,
 });
 
-let allimglist : {[keyof: string]: Message.PicObj} = {};
+
+const imglink2Base64Url = (url: string ) =>
+  new Promise<string|ArrayBuffer|null>((resolve, reject)=>{
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        resolve(reader.result);
+      };
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+  });
+
+
 let uri = '';
 
 let imglist: {[keyof: string]: Message.PicObj} = {};
@@ -26,14 +42,28 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
       $('#list').html('');
       uri = message.url;
     }
-    imglist = Object.assign(imglist, message.imglist);
-    allimglist = Object.assign(imglist, message.imglist);
+    for (const key in message.imglist) {
+      if (!(key in imglist)) {
+        // newof
+        console.log(key);
+        imglist[key] = message.imglist[key];
+        // getDataURL
+        imglink2Base64Url(key).then((data64)=>{
+          console.log(data64);
+          if (typeof data64 === 'string') {
+            imglist[key].dataURL = data64;
+          }
+        });
+      }
+    }
     Object.entries(imglist).map(([key, val]) =>
-      $('#list').append(`<li><a href='${key}'>${key}</a></li>`));
+      $('#list').append(
+          `<li><a href='${key}' download>
+          <img src='${key}' height='200' /></a>${val.dataURL}</li>`,
+      ));
   }
 });
 
-console.log(allimglist);
 
 /*
 // なんで動かねぇ
