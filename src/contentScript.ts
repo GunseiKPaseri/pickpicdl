@@ -1,12 +1,13 @@
 import * as Message from './message';
 
+/*
 const getSHA256Digest = async (msg:string) => {
   const uint8 = new TextEncoder().encode(msg);
   const digest = await crypto.subtle.digest('SHA-256', uint8);
   return Array.from(new Uint8Array(digest))
       .map((b) => b.toString(16).padStart(2, '0')).join('');
 };
-
+*/
 
 const getimginfo = (imgUri: string, base: string )=>{
   if (imgUri.indexOf('data:') == 0) {
@@ -59,7 +60,7 @@ const getImgList = (document: Document) =>{
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           blob: null,
-          from: 'css',
+          from: 'svg',
           filename: filename,
         }];
       });

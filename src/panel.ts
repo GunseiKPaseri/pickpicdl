@@ -147,9 +147,16 @@ const restrictFileName = (name: string) =>
 const generateZipBlob = (list: Message.PicObj[], name: string) => {
   const zip = new JSZip();
   console.log(list);
+  const counter: {[keyof: string]: number} = {};
   list.forEach((list) => {
     if (list.blob!==null) {
-      zip.file(restrictFileName(list.filename), list.blob);
+      const filename = restrictFileName(list.filename);
+      // 重複したファイル名の処理
+      const cnt = (counter[filename] ?? 0) + 1;
+      counter[filename] = cnt;
+      const trueFilename = (cnt === 1 ?
+        filename : filename.replace(/\.(.*?)$/, `(${cnt}).$1`));
+      zip.file(trueFilename, list.blob);
     }
   });
   return zip.generateAsync({type: 'blob'});
@@ -171,6 +178,7 @@ $('#dlbutton').on('click', async ()=>{
 
   const mime = $('#imgconvert').val();
   if (typeof mime === 'string' && mime !== '') {
+    // convert
     const ext = mime2ext(mime);
     target = await Promise.all(target.map(async (x) => {
       if (x.blob.type === mime) return x;
