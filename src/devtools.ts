@@ -1,11 +1,19 @@
+// import { tabs } from "webextension-polyfill";
+
 const backgroundPageConnection = chrome.runtime.connect({
   name: 'picpickdl-devpage',
 });
 
 const initialisePanel = ()=>{
-  backgroundPageConnection.postMessage({
-    command: 'requestImgList',
-    tabId: chrome.devtools.inspectedWindow.tabId,
+  const tabId = chrome.devtools.inspectedWindow.tabId;
+  chrome.tabs.executeScript(tabId, {
+    file: 'contentScript.js',
+  }, (result)=>{
+    console.log(result);
+    backgroundPageConnection.postMessage({
+      command: 'requestImgList',
+      tabId: tabId,
+    });
   });
 };
 
