@@ -75,7 +75,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
       imglist = {};
       $('#list').html(`
         <tr>
-          <th></th><th>画像</th><th>タイトル</th><th>getdata?</th>
+          <th></th><th>画像</th><th>タイトル</th><th>from</th><th>getdata?</th>
         </tr>`);
       uri = message.url;
     }
@@ -113,6 +113,9 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
             </td>
             <td>
               <input type='text' readonly value=${imglist[key].filename}>
+            </td>
+            <td>
+              ${imglist[key].from}
             </td>
             <td>
               <span>${(imglist[key].blob !== null ? '○' : '×')}</span>
@@ -157,7 +160,7 @@ $('#dlbutton').on('click', async ()=>{
       if (x.blob.type === mime) return x;
       const image = await blobImg2imgelement(x.blob);
       const blob = await imgelement2blob(image, mime, 1);
-      return {filename: changeExt(x.filename, ext), blob};
+      return {...x, filename: changeExt(x.filename, ext), blob};
     }));
   }
   const zipBlob = await generateZipBlob(target, 'archive.zip');

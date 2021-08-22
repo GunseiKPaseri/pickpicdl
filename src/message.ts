@@ -1,5 +1,6 @@
-export type PicObjWithBlob = {blob: null, filename: string};
-export type PicObjWithoutBlob = {blob: Blob, filename: string};
+type PicObjCommon = {filename: string, from: 'img' | 'css'};
+export type PicObjWithBlob = {blob: null} & PicObjCommon;
+export type PicObjWithoutBlob = {blob: Blob} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;
 
 export type MessageInit = {command: 'init', tabId: number};
