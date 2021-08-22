@@ -68,7 +68,27 @@ const getImgList = (document: Document) =>{
           filename: filename,
         }];
       });
-  return [...imglist, ...csslist, ...svglist];
+  // canvas
+  const canvaslist = Array.from(document.getElementsByTagName('canvas'))
+      .flatMap((canvasElement) =>{
+        try {
+          const dataURI = canvasElement.toDataURL();
+          return dataURI ? [dataURI] : [];
+        } catch (e) {
+          // CROSS-ORIGIN ERROR
+          return [];
+        }
+      })
+      .map((base64URI): [string, Message.PicObj] => {
+        const [imgTrueUri, filename] =
+          getimginfo(base64URI, location.href);
+        return [imgTrueUri, {
+          blob: null,
+          from: 'canvas',
+          filename: filename,
+        }];
+      });
+  return [...imglist, ...csslist, ...svglist, ...canvaslist];
 };
 
 

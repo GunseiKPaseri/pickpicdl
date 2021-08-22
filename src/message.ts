@@ -1,4 +1,4 @@
-type PicObjCommon = {filename: string, from: 'img' | 'css' | 'svg'};
+type PicObjCommon = {filename: string, from: 'img' | 'css' | 'svg' | 'canvas'};
 export type PicObjWithBlob = {blob: null} & PicObjCommon;
 export type PicObjWithoutBlob = {blob: Blob} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;
