@@ -53,8 +53,12 @@ const getImgList = (document: Document) =>{
       });
   // svg
   const svglist = Array.from(document.getElementsByTagName('svg'))
-      .flatMap((svgElement) => (svgElement.children.length === 0 ?
-        [] : [window.btoa(new XMLSerializer().serializeToString(svgElement))]))
+      .flatMap((svgElement) => {
+        const expressedElmentCnt = Array.from(svgElement.children)
+            .filter((x)=>x.tagName !== 'defs').length;
+        return ( expressedElmentCnt === 0 ?
+        [] : [window.btoa(new XMLSerializer().serializeToString(svgElement))]);
+      })
       .map((base64): [string, Message.PicObj] => {
         const [imgTrueUri, filename] =
           getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);

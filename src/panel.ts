@@ -87,7 +87,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
       imglist = {};
       $('#list').html(`
         <tr>
-          <th></th><th>画像</th><th>タイトル</th><th>from</th><th>getdata?</th>
+          <th></th><th>画像</th><th>タイトル</th><th>from</th><th>サイズ</th>
         </tr>`);
       uri = message.url;
     }
@@ -100,7 +100,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
         imglink2Blob(key).then((blob)=>{
           imglist[key].blob = blob;
           const $target = $(`tr[data-href="${key}"]`);
-          $target.find('span').text('○');
+          $target.find('span').text(blob.size);
           const ext = mime2ext(blob.type);
           if (!ext) {
             // bad file
@@ -114,6 +114,8 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
           $target.find('a').attr('download', imglist[key].filename);
           $target.find('input').val(imglist[key].filename);
         });
+        const blob = imglist[key].blob;
+
         $('#list').append(`
           <tr data-href='${key}'>
             <td>
@@ -131,7 +133,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
               ${imglist[key].from}
             </td>
             <td>
-              <span>${(imglist[key].blob !== null ? '○' : '×')}</span>
+              <span>${blob ? blob : '?'}</span>
             </td>
           </tr>`,
         );
