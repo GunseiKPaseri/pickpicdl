@@ -53,11 +53,11 @@ const getImgList = (document: Document) =>{
       });
   // svg
   const svglist = Array.from(document.getElementsByTagName('svg'))
-      .map((svgElement) => {
-        return window.btoa(new XMLSerializer().serializeToString(svgElement));
-      })
-      .map((uri): [string, Message.PicObj] => {
-        const [imgTrueUri, filename] = getimginfo(uri, location.href);
+      .flatMap((svgElement) => (svgElement.children.length === 0 ?
+        [] : [window.btoa(new XMLSerializer().serializeToString(svgElement))]))
+      .map((base64): [string, Message.PicObj] => {
+        const [imgTrueUri, filename] =
+          getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
         return [imgTrueUri, {
           blob: null,
           from: 'svg',
@@ -80,7 +80,6 @@ const sendImgList = () => {
             return (win === null ? [] : [win.document]);
           } catch (e) {
             // CROSS-ORIGIN ERROR
-            console.warn(e);
             return [];
           }
         })

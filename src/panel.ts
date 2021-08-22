@@ -91,14 +91,13 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
         </tr>`);
       uri = message.url;
     }
+    console.log(message.imglist);
     for (const key in message.imglist) {
       if (!(key in imglist)) {
         // newof
         imglist[key] = message.imglist[key];
-        console.log(key);
         // getDataURL
         imglink2Blob(key).then((blob)=>{
-          console.log(key, blob);
           imglist[key].blob = blob;
           const $target = $(`tr[data-href="${key}"]`);
           $target.find('span').text('○');
