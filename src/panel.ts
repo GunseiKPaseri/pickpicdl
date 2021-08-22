@@ -18,15 +18,27 @@ backgroundPageConnection.postMessage({
 });
 
 
-const imglink2Blob = (url: string ) =>
+const imglink2Blob = (uri: string ) =>
   new Promise<Blob>((resolve, reject)=>{
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-      resolve(xhr.response as Blob);
-    };
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.send();
+    if (uri.indexOf('data:') === 0) {
+      // base64
+      console.log(uri, uri.replace(/^.*,/, ''));
+      const bintxt = window.atob(uri.replace(/^.*,/, ''));
+      const mime = uri.match(/^.*:(.*);/)?.[1];
+      console.log(mime, bintxt);
+      const buffer = new Uint8Array(
+          Array.from(bintxt).map((c)=>c.charCodeAt(0)),
+      );
+      resolve(new Blob([buffer], {type: mime}));
+    } else {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response as Blob);
+      };
+      xhr.open('GET', uri);
+      xhr.responseType = 'blob';
+      xhr.send();
+    }
   });
 
 const blob2base64 = (blob: Blob) =>
@@ -83,8 +95,10 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
       if (!(key in imglist)) {
         // newof
         imglist[key] = message.imglist[key];
+        console.log(key);
         // getDataURL
         imglink2Blob(key).then((blob)=>{
+          console.log(key, blob);
           imglist[key].blob = blob;
           const $target = $(`tr[data-href="${key}"]`);
           $target.find('span').text('○');
@@ -141,6 +155,8 @@ const generateZipBlob = (list: Message.PicObj[], name: string) => {
   return zip.generateAsync({type: 'blob'});
 };
 
+
+// img Download
 $('#dlbutton').on('click', async ()=>{
   let target = $('.imgchk:checked').map(function() {
     // eslint-disable-next-line no-invalid-this

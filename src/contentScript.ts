@@ -1,6 +1,17 @@
 import * as Message from './message';
 
+const getSHA256Digest = async (msg:string) => {
+  const uint8 = new TextEncoder().encode(msg);
+  const digest = await crypto.subtle.digest('SHA-256', uint8);
+  return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, '0')).join('');
+};
+
+
 const getimginfo = (imgUri: string, base: string )=>{
+  if (imgUri.indexOf('data:') == 0) {
+    return [imgUri, 'data-uri'];
+  }
   const imgTrueUri:string = (new URL(imgUri, base)).toString();
   const filename =
     imgTrueUri.match(/.+\/(.+?)([\?#;].*)?$/)?.[1] || 'anyfile';
@@ -24,10 +35,11 @@ const getImgList = (document: Document) =>{
       });
   // css
   const csslist = Array.from(document.querySelectorAll('*'))
-      .map((element)=>getComputedStyle(element).backgroundImage)
+      .flatMap((element)=>getComputedStyle(element).backgroundImage)
       .flatMap((property)=>{
         const x =
-          property.match(/https?:\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
+          property.match(
+              /(data|https?):\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
         return (x===null ? [] : x);
       })
       .map((uri): [string, Message.PicObj] => {
@@ -38,7 +50,20 @@ const getImgList = (document: Document) =>{
           filename: filename,
         }];
       });
-  return [...imglist, ...csslist];
+  // svg
+  const svglist = Array.from(document.getElementsByTagName('svg'))
+      .map((svgElement) => {
+        return window.btoa(new XMLSerializer().serializeToString(svgElement));
+      })
+      .map((uri): [string, Message.PicObj] => {
+        const [imgTrueUri, filename] = getimginfo(uri, location.href);
+        return [imgTrueUri, {
+          blob: null,
+          from: 'css',
+          filename: filename,
+        }];
+      });
+  return [...imglist, ...csslist, ...svglist];
 };
 
 
@@ -54,7 +79,7 @@ const sendImgList = () => {
             return (win === null ? [] : [win.document]);
           } catch (e) {
             // CROSS-ORIGIN ERROR
-            console.log(e);
+            console.warn(e);
             return [];
           }
         })
