@@ -5,7 +5,6 @@ import 'jszip';
 import JSZip from 'jszip';
 
 console.clear();
-console.log('test');
 
 
 const backgroundPageConnection = chrome.runtime.connect({
@@ -22,10 +21,8 @@ const imglink2Blob = (uri: string ) =>
   new Promise<Blob>((resolve, reject)=>{
     if (uri.indexOf('data:') === 0) {
       // base64
-      console.log(uri, uri.replace(/^.*,/, ''));
       const bintxt = window.atob(uri.replace(/^.*,/, ''));
       const mime = uri.match(/^.*:(.*);/)?.[1];
-      console.log(mime, bintxt);
       const buffer = new Uint8Array(
           Array.from(bintxt).map((c)=>c.charCodeAt(0)),
       );
@@ -91,7 +88,6 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
         </tr>`);
       uri = message.url;
     }
-    console.log(message.imglist);
     for (const key in message.imglist) {
       if (!(key in imglist)) {
         // newof
@@ -147,7 +143,6 @@ const restrictFileName = (name: string) =>
 
 const generateZipBlob = (list: Message.PicObj[], name: string) => {
   const zip = new JSZip();
-  console.log(list);
   const counter: {[keyof: string]: number} = {};
   list.forEach((list) => {
     if (list.blob!==null) {

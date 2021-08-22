@@ -40,7 +40,7 @@ const getImgList = (document: Document) =>{
       .flatMap((property)=>{
         const x =
           property.match(
-              /(data|https?):\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
+              /((data|https?):)?\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
         return (x===null ? [] : x);
       })
       .map((uri): [string, Message.PicObj] => {
