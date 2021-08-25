@@ -130,3 +130,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, callback) {
     sendImgList();
   }
 });
+
+setInterval(()=>{
+  sendImgList();
+}, 3000);
