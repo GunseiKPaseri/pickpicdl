@@ -1,7 +1,10 @@
-type PicObjCommon = {filename: string, from: 'img' | 'css' | 'svg' | 'canvas'};
-export type PicObjWithBlob = {blob: null} & PicObjCommon;
-export type PicObjWithoutBlob = {blob: Blob} & PicObjCommon;
+export type ImgResource = 'img' | 'css' | 'svg' | 'canvas';
+type PicObjCommon = {uri: string, filename: string, from: ImgResource};
+export type PicObjWithoutBlob = {blob: null, filesize: null} & PicObjCommon;
+export type PicObjWithBlob = {blob: Blob, filesize: number} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;
+
+export type convertOption = 'default' | 'image/png';
 
 export type MessageInit = {command: 'init', tabId: number};
 

@@ -1,4 +1,4 @@
-import * as Message from './message';
+import * as Message from './type';
 
 /*
 const getSHA256Digest = async (msg:string) => {
@@ -29,7 +29,9 @@ const getImgList = (document: Document) =>{
       .map((uri): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
+          uri: imgTrueUri,
           blob: null,
+          filesize: null,
           from: 'img',
           filename: filename,
         }];
@@ -46,7 +48,9 @@ const getImgList = (document: Document) =>{
       .map((uri): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
+          uri: imgTrueUri,
           blob: null,
+          filesize: null,
           from: 'css',
           filename: filename,
         }];
@@ -63,7 +67,9 @@ const getImgList = (document: Document) =>{
         const [imgTrueUri, filename] =
           getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
         return [imgTrueUri, {
+          uri: imgTrueUri,
           blob: null,
+          filesize: null,
           from: 'svg',
           filename: filename,
         }];
@@ -83,7 +89,9 @@ const getImgList = (document: Document) =>{
         const [imgTrueUri, filename] =
           getimginfo(base64URI, location.href);
         return [imgTrueUri, {
+          uri: imgTrueUri,
           blob: null,
+          filesize: null,
           from: 'canvas',
           filename: filename,
         }];
