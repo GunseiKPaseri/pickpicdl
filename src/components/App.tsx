@@ -35,7 +35,8 @@ import MaterialTable, {MTableToolbar} from 'material-table';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
 import {convertOption, PicObjWithBlob} from '../type';
 import {
-//  getChangePasswordAction,
+  getClearBlobURIAction,
+  //  getChangePasswordAction,
   getGenZipAction,
   getSetSelectedItemAction,
   State} from '../redux';
@@ -62,8 +63,9 @@ const App = ():JSX.Element => {
   const dispatch = useDispatch();
   // React State
   const [mime, setMime] = React.useState<convertOption>('default');
-  const handleChange =
+  const handleMIMESelectChange =
     (e: React.ChangeEvent<{value: unknown}>)=>{
+      dispatch(getClearBlobURIAction());
       if (e.target.value ==='default' || e.target.value === 'image/png') {
         setMime(e.target.value);
       }
@@ -115,7 +117,7 @@ const App = ():JSX.Element => {
         } : undefined}>
         {zip==='loading' ? <CircularProgress /> : '生成' }
       </Button>
-      <Select value={mime} onChange={handleChange}>
+      <Select value={mime} onChange={handleMIMESelectChange}>
         <MenuItem value={'default'}>変換なし</MenuItem>
         <MenuItem value={'image/png'}>Pngに変換</MenuItem>
       </Select>

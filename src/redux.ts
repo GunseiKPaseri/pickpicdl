@@ -10,6 +10,7 @@ const ActionTypes = {
   RENAME_FILE: `${AppPrefix}RENAME_FILE`,
   ADD_BAD_URIS: `${AppPrefix}ADD_BAD_URIS`,
   CHANGE_PASSWORD: `${AppPrefix}CHANGE_PASSWORD`,
+  CLEAR_BLOBURI: `${AppPrefix}CLEAR_BLOBURI`,
   GEN_ZIP: `${AppPrefix}GEN_ZIP`,
   REQUEST_GEN_ZIP: `${AppPrefix}REQUEST_GEN_ZIP`,
   RESPONSE_GEN_ZIP: `${AppPrefix}RESPONSE_GEN_ZIP`,
@@ -79,6 +80,14 @@ export const getChangePasswordAction = (password: string):changePassword => ({
   props: {password},
 });
 
+// CLEAR_BLOBURI
+interface clearBlobURIAction extends Action {
+  type: typeof ActionTypes.CLEAR_BLOBURI,
+}
+export const getClearBlobURIAction = ():clearBlobURIAction => ({
+  type: ActionTypes.CLEAR_BLOBURI,
+});
+
 // GEN_ZIP
 interface genZip extends Action {
   type: typeof ActionTypes.GEN_ZIP,
@@ -118,6 +127,7 @@ type AppActions =
   addBadURIs |
   changePassword |
   genZip |
+  clearBlobURIAction |
   requestGenZip |
   responseGenZip;
 
@@ -188,6 +198,14 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         selectedItems: [],
         items: {},
         baduri: new Set(Array.from(state.baduri)),
+      };
+    case ActionTypes.CLEAR_BLOBURI:
+      if (typeof state.zip === 'string') {
+        URL.revokeObjectURL(state.zip);
+      }
+      return {
+        ...state,
+        zip: null,
       };
     case ActionTypes.SET_SELECTED_ITEM:
       if (typeof state.zip === 'string') {
