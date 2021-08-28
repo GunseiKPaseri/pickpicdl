@@ -35,18 +35,30 @@ import MaterialTable, {MTableToolbar} from 'material-table';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
 import {convertOption, PicObjWithBlob} from '../type';
 import {
-  getGenZipAction, getSetSelectedItemAction, State} from '../redux';
+//  getChangePasswordAction,
+  getGenZipAction,
+  getSetSelectedItemAction,
+  State} from '../redux';
 import {useTheme} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from 'react-redux';
-import {Button, CircularProgress, MenuItem, Select} from '@material-ui/core';
-import {GetApp, Archive} from '@material-ui/icons';
+import {
+  Button,
+  CircularProgress,
+  MenuItem, Select} from '@material-ui/core';
+import {
+  GetApp as GetAppIcon,
+  Archive as ArchiveIcon} from '@material-ui/icons';
+// import {PasswordForm} from './PasswordForm';
+
 
 const App = ():JSX.Element => {
-  const list = useSelector<State, PicObjWithBlob[]>((state) =>
-    Object.keys(state.items).map((key)=>state.items[key]));
   const theme = useTheme();
   // Redux State
-  const {selectedItems, zip} = useSelector<State, State>((state)=>state);
+  const list = useSelector<State, PicObjWithBlob[]>((state) =>
+    Object.keys(state.items).map((key)=>state.items[key]));
+  // const {selectedItems, zip, password} =
+  const {selectedItems, zip} =
+    useSelector<State, State>((state)=>state);
   const dispatch = useDispatch();
   // React State
   const [mime, setMime] = React.useState<convertOption>('default');
@@ -80,22 +92,24 @@ const App = ():JSX.Element => {
           title: '画像',
           render: (rowData) =>
             <img src={rowData.uri} style={{maxWidth: 50, maxHeight: 50}} />,
+          editable: 'never',
         },
         {
           title: 'URI',
           field: 'uri',
           render: (rowData)=><input type='url' value={rowData.uri} readOnly />,
+          editable: 'never',
         },
         {
           title: 'ファイル名',
           field: 'filename',
           render: (rowData)=>rowData.filename.slice(-15),
         },
-        {title: 'リソース', field: 'from'},
+        {title: 'リソース', field: 'from', editable: 'never'},
       ]}
       data={list} />
       <Button disabled={zip!==null || selectedItems.length === 0}
-        startIcon={zip==='loading' ? undefined : <Archive />}
+        startIcon={zip==='loading' ? undefined : <ArchiveIcon />}
         onClick={zip===null && selectedItems.length>0 ? ()=>{
           dispatch(getGenZipAction(selectedItems, mime));
         } : undefined}>
@@ -105,10 +119,15 @@ const App = ():JSX.Element => {
         <MenuItem value={'default'}>変換なし</MenuItem>
         <MenuItem value={'image/png'}>Pngに変換</MenuItem>
       </Select>
+      {/*
+      // まだパスワード付きはできないっぽい（結構最近に動きがあったからワンチャン）
+      <PasswordForm password={password}
+        handleChange={(p: string) => dispatch(getChangePasswordAction(p))}/>
+      */}
       {
         zip===null || zip ==='loading' ? <></>:
-        <a href = {zip.uri} download>
-          <Button startIcon={<GetApp />}>
+        <a href = {zip.uri} download style={{textDecoration: 'none'}}>
+          <Button startIcon={<GetAppIcon />}>
             ダウンロード({zip.generated.toLocaleString('ja-JP')})
           </Button>
         </a>

@@ -9,6 +9,7 @@ const ActionTypes = {
   ADD_ITEMS: `${AppPrefix}ADD_ITEMS`,
   RENAME_FILE: `${AppPrefix}RENAME_FILE`,
   ADD_BAD_URIS: `${AppPrefix}ADD_BAD_URIS`,
+  CHANGE_PASSWORD: `${AppPrefix}CHANGE_PASSWORD`,
   GEN_ZIP: `${AppPrefix}GEN_ZIP`,
   REQUEST_GEN_ZIP: `${AppPrefix}REQUEST_GEN_ZIP`,
   RESPONSE_GEN_ZIP: `${AppPrefix}RESPONSE_GEN_ZIP`,
@@ -68,6 +69,16 @@ export const getAddBadURIsAction = (uris: string[]):addBadURIs => ({
   props: {uris},
 });
 
+// CHANGE_PASSWORD
+interface changePassword extends Action {
+  type: typeof ActionTypes.CHANGE_PASSWORD,
+  props: {password: string},
+}
+export const getChangePasswordAction = (password: string):changePassword => ({
+  type: ActionTypes.CHANGE_PASSWORD,
+  props: {password},
+});
+
 // GEN_ZIP
 interface genZip extends Action {
   type: typeof ActionTypes.GEN_ZIP,
@@ -105,14 +116,17 @@ type AppActions =
   addItemsAction |
   renameFileAction |
   addBadURIs |
+  changePassword |
+  genZip |
   requestGenZip |
   responseGenZip;
 
 // Saga
 
-import {takeLatest, call, put, all, fork} from 'redux-saga/effects';
+import {takeLatest, call, put, all, fork, select} from 'redux-saga/effects';
 import {generateZipBlob} from './util/zipblob';
 import {imgConverter} from './util/imgConverter';
+import {changeExt, mime2ext} from './util/mime2ext';
 
 // ZIP_DL_LINK
 // eslint-disable-next-line require-jsdoc
@@ -120,12 +134,19 @@ function* genZipFile({props}: genZip) {
   yield put(getRequestGenZipAction());
   // convert
   const files: PicObjWithBlob[] = yield call((targets: PicObjWithBlob[]) =>
-    Promise.all(targets.map((x)=>imgConverter(x, props.mime))), props.files);
+    Promise.all(targets.map(
+        (x)=>(props.mime === 'default' ?
+            Promise.resolve({
+              ...x, filename: changeExt(x.filename, mime2ext(x.blob.type))}) :
+            imgConverter(x, props.mime)))),
+  props.files);
+
+  // password
+  const {password}:State = yield select();
 
   // genZip
   const zipBlob: Blob =
-    yield call(generateZipBlob, files, 'generated_zip_file');
-  console.log('読んでない？');
+    yield call(generateZipBlob, files, 'generated_zip_file', password);
   yield put(getResponseGenZipAction(URL.createObjectURL(zipBlob)));
 }
 // eslint-disable-next-line require-jsdoc
@@ -147,6 +168,7 @@ export type State = {
   selectedItems: PicObjWithBlob[];
   baduri: Set<string>;
   zip: null | 'loading' | {uri: string, generated: Date};
+  password: string;
 };
 export const initialState:State = {
   url: '',
@@ -154,6 +176,7 @@ export const initialState:State = {
   selectedItems: [],
   baduri: new Set(),
   zip: null,
+  password: '',
 };
 
 export const reducer = (state=initialState, action: AppActions):State=>{
@@ -167,6 +190,9 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         baduri: new Set(Array.from(state.baduri)),
       };
     case ActionTypes.SET_SELECTED_ITEM:
+      if (typeof state.zip === 'string') {
+        URL.revokeObjectURL(state.zip);
+      }
       return {
         ...state,
         selectedItems: action.props.items,
@@ -199,6 +225,11 @@ export const reducer = (state=initialState, action: AppActions):State=>{
       return {
         ...state,
         baduri: new Set([...Array.from(state.baduri), ...action.props.uris]),
+      };
+    case ActionTypes.CHANGE_PASSWORD:
+      return {
+        ...state,
+        password: action.props.password,
       };
     case ActionTypes.REQUEST_GEN_ZIP:
       return {
