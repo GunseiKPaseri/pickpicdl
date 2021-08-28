@@ -31,7 +31,7 @@ $('#dlbutton').on('click', async ()=>{
 });*/
 
 import * as React from 'react';
-import MaterialTable, {MTableToolbar} from 'material-table';
+import MaterialTable, { Column } from 'material-table';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
 import {convertOption, PicObjWithBlob} from '../type';
 import {
@@ -51,7 +51,6 @@ import {
   Archive as ArchiveIcon} from '@material-ui/icons';
 // import {PasswordForm} from './PasswordForm';
 
-
 const App = ():JSX.Element => {
   const theme = useTheme();
   // Redux State
@@ -70,6 +69,26 @@ const App = ():JSX.Element => {
         setMime(e.target.value);
       }
     };
+  const [columnObject] = React.useState<Column<PicObjWithBlob>[]>([
+    {
+      title: '画像',
+      render: (rowData) =>
+        <img src={rowData.uri} style={{maxWidth: 50, maxHeight: 50}} />,
+      editable: 'never',
+    },
+    {
+      title: 'URI',
+      field: 'uri',
+      render: (rowData)=><input type='url' value={rowData.uri} readOnly />,
+      editable: 'never',
+    },
+    {
+      title: 'ファイル名',
+      field: 'filename',
+      render: (rowData)=>rowData.filename.slice(-15),
+    },
+    {title: 'リソース', field: 'from', editable: 'never'},
+  ]);
   return (
     <>
       <MaterialTable options={{
@@ -82,33 +101,8 @@ const App = ():JSX.Element => {
               lighten(theme.palette.secondary.light, 0.85) : '',
         }),
       }}
-      components={{
-        Toolbar: (props) => (
-          <MTableToolbar {...props}>
-          </MTableToolbar>
-        ),
-      }}
       onSelectionChange={(data) => dispatch(getSetSelectedItemAction(data))}
-      columns={[
-        {
-          title: '画像',
-          render: (rowData) =>
-            <img src={rowData.uri} style={{maxWidth: 50, maxHeight: 50}} />,
-          editable: 'never',
-        },
-        {
-          title: 'URI',
-          field: 'uri',
-          render: (rowData)=><input type='url' value={rowData.uri} readOnly />,
-          editable: 'never',
-        },
-        {
-          title: 'ファイル名',
-          field: 'filename',
-          render: (rowData)=>rowData.filename.slice(-15),
-        },
-        {title: 'リソース', field: 'from', editable: 'never'},
-      ]}
+      columns={columnObject}
       data={list} />
       <Button disabled={zip!==null || selectedItems.length === 0}
         startIcon={zip==='loading' ? undefined : <ArchiveIcon />}
