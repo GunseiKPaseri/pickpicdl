@@ -7,17 +7,17 @@ import green from '@material-ui/core/colors/green';
 
 import {Provider} from 'react-redux';
 import {
-  getAddBadURIAction,
-  getAddItemAction,
+  getAddBadURIsAction,
+  getAddItemsAction,
   getSetUrlAction,
   initialState,
   reducer,
   rootSaga,
 } from './redux';
 import App from './components/App';
-import {Message} from './type';
+import {Message, PicObj, PicObjWithBlob} from './type';
 import {imglink2Blob} from './util/blobutil';
-import {hasExt, mime2ext} from './util/mime2ext';
+import {mime2ext} from './util/mime2ext';
 import {applyMiddleware, createStore, compose} from 'redux';
 import createSaga from 'redux-saga';
 
@@ -45,6 +45,28 @@ backgroundPageConnection.onMessage.addListener((message: Message)=>{
     if (store.getState().url !== message.url) {
       store.dispatch(getSetUrlAction(message.url));
     }
+    const additionItem = Object.entries(message.imglist)
+        .flatMap(([uriEntry, item]): [string, PicObj][]=>{
+          if (store.getState().baduri.has(uriEntry) ||
+              (uriEntry in store.getState().items)) return [];
+          return [[uriEntry, item]];
+        });
+    const promises = additionItem
+        .map(([uriEntry, item])=> imglink2Blob(uriEntry).then((blob)=>{
+          const ext = mime2ext(blob.type);
+          if (!ext) return ['bad', uriEntry];
+          const newItem:PicObjWithBlob =
+            {...item, blob, filesize: blob.size};
+          return newItem;
+        }));
+    Promise.all(promises).then((results)=>{
+      const newItems = results.flatMap((x)=> Array.isArray(x) ? [] : [x]);
+      const badURIs = results.flatMap((x)=> Array.isArray(x) ? [x[1]] : []);
+      store.dispatch(getAddItemsAction(newItems));
+      store.dispatch(getAddBadURIsAction(badURIs));
+    });
+
+    /*
     for (const uriEntry in message.imglist) {
       if (!store.getState().baduri.has(uriEntry) &&
         !(uriEntry in store.getState().items)) {
@@ -54,15 +76,14 @@ backgroundPageConnection.onMessage.addListener((message: Message)=>{
           const ext = mime2ext(blob.type);
           if (!ext) {
             store.dispatch(getAddBadURIAction(uriEntry));
-            return;
+            return [];
           }
           if (hasExt(item.filename, ext)) {
             item.filename = item.filename + ext;
           }
-          const newItem = {...item, blob, filesize: blob.size};
+          return [{...item, blob, filesize: blob.size}];
           store.dispatch(getAddItemAction(newItem));
-        });
-        /*
+        }).flatMap().;
         // newof
         imglist[key] = message.imglist[key];
         // getDataURL
@@ -105,9 +126,9 @@ backgroundPageConnection.onMessage.addListener((message: Message)=>{
               <span>${blob ? blob : '?'}</span>
             </td>
           </tr>`,
-        );*/
+        );
       }
-    }
+    }*/
   }
 });
 /*

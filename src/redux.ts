@@ -6,9 +6,9 @@ const AppPrefix = 'picpickdl/' as const;
 const ActionTypes = {
   SET_URL: `${AppPrefix}SET_URL`,
   SET_SELECTED_ITEM: `${AppPrefix}SET_SELECTED_ITEM`,
-  ADD_ITEM: `${AppPrefix}ADD_ITEM`,
+  ADD_ITEMS: `${AppPrefix}ADD_ITEMS`,
   RENAME_FILE: `${AppPrefix}RENAME_FILE`,
-  ADD_BAD_URI: `${AppPrefix}ADD_BAD_URI`,
+  ADD_BAD_URIS: `${AppPrefix}ADD_BAD_URIS`,
   GEN_ZIP: `${AppPrefix}GEN_ZIP`,
   REQUEST_GEN_ZIP: `${AppPrefix}REQUEST_GEN_ZIP`,
   RESPONSE_GEN_ZIP: `${AppPrefix}RESPONSE_GEN_ZIP`,
@@ -37,14 +37,14 @@ export const getSetSelectedItemAction =
     props: {items},
   });
 
-// ADD_ITEM
-interface addItemAction extends Action {
-  type: typeof ActionTypes.ADD_ITEM,
-  props: {item: PicObjWithBlob},
+// ADD_ITEMS
+interface addItemsAction extends Action {
+  type: typeof ActionTypes.ADD_ITEMS,
+  props: {items: PicObjWithBlob[]},
 }
-export const getAddItemAction = (item: PicObjWithBlob):addItemAction => ({
-  type: ActionTypes.ADD_ITEM,
-  props: {item},
+export const getAddItemsAction = (items: PicObjWithBlob[]):addItemsAction => ({
+  type: ActionTypes.ADD_ITEMS,
+  props: {items},
 });
 
 // RENAME_FILE
@@ -58,14 +58,14 @@ export const getRenameFileAction =
     props: {uri, filename},
   });
 
-// ADD_BAD_URI
-interface addBadURI extends Action {
-  type: typeof ActionTypes.ADD_BAD_URI,
-  props: {uri: string},
+// ADD_BAD_URIS
+interface addBadURIs extends Action {
+  type: typeof ActionTypes.ADD_BAD_URIS,
+  props: {uris: string[]},
 }
-export const getAddBadURIAction = (uri: string):addBadURI => ({
-  type: ActionTypes.ADD_BAD_URI,
-  props: {uri},
+export const getAddBadURIsAction = (uris: string[]):addBadURIs => ({
+  type: ActionTypes.ADD_BAD_URIS,
+  props: {uris},
 });
 
 // GEN_ZIP
@@ -102,9 +102,9 @@ export const getResponseGenZipAction = (uri: string):responseGenZip => ({
 type AppActions =
   setUrlAction |
   setSelectedItemAction |
-  addItemAction |
+  addItemsAction |
   renameFileAction |
-  addBadURI |
+  addBadURIs |
   requestGenZip |
   responseGenZip;
 
@@ -172,15 +172,13 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         selectedItems: action.props.items,
         zip: null,
       };
-    case ActionTypes.ADD_ITEM:
+    case ActionTypes.ADD_ITEMS:
       return {
         ...state,
-        items: {
-          ...state.items,
-          [action.props.item.uri]: {
-            ...action.props.item,
-          },
-        },
+        items: Object.fromEntries([
+          ...Object.entries(state.items),
+          ...action.props.items.map((x)=>[x.uri, x]),
+        ]),
         baduri: new Set(Array.from(state.baduri)),
       };
     case ActionTypes.RENAME_FILE:
@@ -197,10 +195,10 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         },
         baduri: new Set(Array.from(state.baduri)),
       };
-    case ActionTypes.ADD_BAD_URI:
+    case ActionTypes.ADD_BAD_URIS:
       return {
         ...state,
-        baduri: new Set([...Array.from(state.baduri), action.props.uri]),
+        baduri: new Set([...Array.from(state.baduri), ...action.props.uris]),
       };
     case ActionTypes.REQUEST_GEN_ZIP:
       return {
