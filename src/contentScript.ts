@@ -1,4 +1,5 @@
 import * as Message from './type';
+import browser from 'webextension-polyfill';
 
 /*
 const getSHA256Digest = async (msg:string) => {
@@ -124,7 +125,7 @@ const sendImgList = () => {
     imglist: Object.fromEntries(imglistEntry),
   };
   // _port.postMessage(message);
-  chrome.runtime.sendMessage(message, (res) =>{
+  browser.runtime.sendMessage(message).then((res) =>{
     console.log(res);
   });
 };
@@ -133,7 +134,7 @@ window.addEventListener('load', function() {
   sendImgList();
 });
 
-chrome.runtime.onMessage.addListener(function(message, sender, callback) {
+browser.runtime.onMessage.addListener((message) => {
   if (message.command === 'requestImgList') {
     sendImgList();
   }

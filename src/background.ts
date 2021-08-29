@@ -1,17 +1,18 @@
 import * as Message from './type';
+import browser from 'webextension-polyfill';
 // (panel<==>background)connections
-const connections : {[key:string]: chrome.runtime.Port} = {};
+const connections : {[key:string]: browser.Runtime.Port} = {};
 
 // panel => background => contentScript
-chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
+browser.runtime.onConnect.addListener((port: browser.Runtime.Port) => {
   const extensionListener =
-    (mes: Message.Message, sender: chrome.runtime.Port) => {
+    (mes: Message.Message, sender: browser.Runtime.Port) => {
       if (mes.command === 'init') {
         // panel => background
         connections[mes.tabId] = port;
       } else if ('tabId' in mes ) {
         // panel => background => contentScript (NEED tabId)
-        chrome.tabs.sendMessage(mes.tabId, mes, ()=>{});
+        browser.tabs.sendMessage(mes.tabId, mes);
       }
       //
     };
@@ -30,7 +31,7 @@ chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
 });
 
 // contentScript => background => panel
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+browser.runtime.onMessage.addListener((request, sender) => {
   // Messages from content scripts should have sender.tab set
   if (sender.tab) {
     const tabId = sender.tab.id;
@@ -42,6 +43,5 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   } else {
     console.log('sender.tab not defined.');
   }
-  return true;
 });
 

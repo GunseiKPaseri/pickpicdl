@@ -18,15 +18,16 @@ import {imglink2Blob} from './util/blobutil';
 import {mime2ext} from './util/mime2ext';
 import {applyMiddleware, createStore, compose} from 'redux';
 import createSaga from 'redux-saga';
+import {browser} from 'webextension-polyfill-ts';
 
 console.clear();
 
-const backgroundPageConnection = chrome.runtime.connect({
+const backgroundPageConnection = browser.runtime.connect({
   name: 'picpickdl-devpage',
 });
 backgroundPageConnection.postMessage({
   command: 'init',
-  tabId: chrome.devtools.inspectedWindow.tabId,
+  tabId: browser.devtools.inspectedWindow.tabId,
 });
 
 // use saga

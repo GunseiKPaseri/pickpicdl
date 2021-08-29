@@ -14,7 +14,7 @@
     "activeTab"
   ],
   "background": {
-    "scripts": [ "background.js" ],
+    "scripts": [ "browserPolyfill.js", "background.js" ],
     "persistent": false
   },
   "devtools_page": "devtools.html"

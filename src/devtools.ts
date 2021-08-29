@@ -1,14 +1,15 @@
-// import { tabs } from "webextension-polyfill";
+import browser from 'webextension-polyfill';
 
-const backgroundPageConnection = chrome.runtime.connect({
+const backgroundPageConnection = browser.runtime.connect({
   name: 'picpickdl-devpage',
 });
 
 const initialisePanel = ()=>{
-  const tabId = chrome.devtools.inspectedWindow.tabId;
-  chrome.tabs.executeScript(tabId, {
+  const tabId = browser.devtools.inspectedWindow.tabId;
+  browser.tabs.executeScript(tabId, {file: 'browser-polyfill.js'});
+  browser.tabs.executeScript(tabId, {
     file: 'contentScript.js',
-  }, (result)=>{
+  }).then((result)=>{
     console.log(result);
     backgroundPageConnection.postMessage({
       command: 'requestImgList',
@@ -17,11 +18,11 @@ const initialisePanel = ()=>{
   });
 };
 
-chrome.devtools.panels.create(
+browser.devtools.panels.create(
     'PicPickDL',
     'icons/icon_16.png',
     './panel.html',
-    (panel)=>{
-      panel.onShown.addListener(initialisePanel);
-      // panel.onHidden.addListener(unInitialisePanel);
-    });
+).then((panel)=>{
+  panel.onShown.addListener(initialisePanel);
+  // panel.onHidden.addListener(unInitialisePanel);
+});

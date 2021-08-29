@@ -14,6 +14,8 @@ const config: any = () => {
       panel: path.join(__dirname, 'src', 'panel.tsx'),
       background: path.join(__dirname, 'src', 'background.ts'),
       contentScript: path.join(__dirname, 'src', 'contentScript.ts'),
+      browserPolyfill: path.join(__dirname, 'node_modules',
+          'webextension-polyfill', 'dist', 'browser-polyfill.js'),
     },
     module: {
       rules: [
