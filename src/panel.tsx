@@ -63,136 +63,8 @@ backgroundPageConnection.onMessage.addListener((message: Message)=>{
       store.dispatch(getAddItemsAction(newItems));
       store.dispatch(getAddBadURIsAction(badURIs));
     });
-
-    /*
-    for (const uriEntry in message.imglist) {
-      if (!store.getState().baduri.has(uriEntry) &&
-        !(uriEntry in store.getState().items)) {
-        console.log(uriEntry);
-        const item = message.imglist[uriEntry];
-        imglink2Blob(uriEntry).then((blob)=>{
-          const ext = mime2ext(blob.type);
-          if (!ext) {
-            store.dispatch(getAddBadURIAction(uriEntry));
-            return [];
-          }
-          if (hasExt(item.filename, ext)) {
-            item.filename = item.filename + ext;
-          }
-          return [{...item, blob, filesize: blob.size}];
-          store.dispatch(getAddItemAction(newItem));
-        }).flatMap().;
-        // newof
-        imglist[key] = message.imglist[key];
-        // getDataURL
-        imglink2Blob(key).then((blob)=>{
-          imglist[key].blob = blob;
-          const $target = $(`tr[data-href="${key}"]`);
-          $target.find('span').text(blob.size);
-          const ext = mime2ext(blob.type);
-          if (!ext) {
-            // bad file
-            delete imglist[key];
-            $target.remove();
-            return;
-          }
-          if (ext && hasExt(imglist[key].filename, ext) ) {
-            imglist[key].filename += ext;
-          }
-          $target.find('a').attr('download', imglist[key].filename);
-          $target.find('input').val(imglist[key].filename);
-        });
-        const blob = imglist[key].blob;
-
-        $('#list').append(`
-          <tr data-href='${key}'>
-            <td>
-              <input class='imgchk' type='checkbox'>
-            </td>
-            <td>
-              <a href='${key}' download=${imglist[key].filename}>
-                <img src='${key}'/>
-              </a>
-            </td>
-            <td>
-              <input type='text' readonly value=${imglist[key].filename}>
-            </td>
-            <td>
-              ${imglist[key].from}
-            </td>
-            <td>
-              <span>${blob ? blob : '?'}</span>
-            </td>
-          </tr>`,
-        );
-      }
-    }*/
   }
 });
-/*
-
-backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
-  if (message.command === 'putimglist') {
-    if (uri !== message.url) {
-      imglist = {};
-      $('#list').html(`
-        <tr>
-          <th></th><th>画像</th><th>タイトル</th><th>from</th><th>サイズ</th>
-        </tr>`);
-      uri = message.url;
-    }
-    for (const key in message.imglist) {
-      if (!(key in imglist)) {
-        // newof
-        imglist[key] = message.imglist[key];
-        // getDataURL
-        imglink2Blob(key).then((blob)=>{
-          imglist[key].blob = blob;
-          const $target = $(`tr[data-href="${key}"]`);
-          $target.find('span').text(blob.size);
-          const ext = mime2ext(blob.type);
-          if (!ext) {
-            // bad file
-            delete imglist[key];
-            $target.remove();
-            return;
-          }
-          if (ext && hasExt(imglist[key].filename, ext) ) {
-            imglist[key].filename += ext;
-          }
-          $target.find('a').attr('download', imglist[key].filename);
-          $target.find('input').val(imglist[key].filename);
-        });
-        const blob = imglist[key].blob;
-
-        $('#list').append(`
-          <tr data-href='${key}'>
-            <td>
-              <input class='imgchk' type='checkbox'>
-            </td>
-            <td>
-              <a href='${key}' download=${imglist[key].filename}>
-                <img src='${key}'/>
-              </a>
-            </td>
-            <td>
-              <input type='text' readonly value=${imglist[key].filename}>
-            </td>
-            <td>
-              ${imglist[key].from}
-            </td>
-            <td>
-              <span>${blob ? blob : '?'}</span>
-            </td>
-          </tr>`,
-        );
-      }
-    }
-  }
-});*/
-/*
-*/
-
 
 const Root = () => {
   const theme = createTheme();
@@ -206,12 +78,6 @@ const Root = () => {
 };
 
 ReactDOM.render(<Root />, document.querySelector('#app'));
-
-/*
-import $ from 'jquery';
-import {changeExt, hasExt, mime2ext} from './mime2ext';
-import 'jszip';
-
 
 /*
 // なんで動かねぇ

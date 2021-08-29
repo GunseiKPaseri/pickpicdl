@@ -1,35 +1,3 @@
-/*
-
-// img Download
-$('#dlbutton').on('click', async ()=>{
-  let target = $('.imgchk:checked').map(function() {
-    // eslint-disable-next-line no-invalid-this
-    return $(this).parent().parent().attr('data-href');
-  }).get().map((x)=>imglist[x]).flatMap((x) => (x.blob === null ? [] : [x]));
-
-  if (target.length === 0) {
-    $('#dllink').attr('href', '#');
-    $('#dllink').text(`選択しなさい`);
-    return;
-  }
-
-  const mime = $('#imgconvert').val();
-  if (typeof mime === 'string' && mime !== '') {
-    // convert
-    const ext = mime2ext(mime);
-    target = await Promise.all(target.map(async (x) => {
-      if (x.blob.type === mime) return x;
-      const image = await blobImg2imgelement(x.blob);
-      const blob = await imgelement2blob(image, mime, 1);
-      return {...x, filename: changeExt(x.filename, ext), blob};
-    }));
-  }
-  const zipBlob = await generateZipBlob(target, 'archive.zip');
-  const zipBase64 = await blob2base64(zipBlob);
-  $('#dllink').attr('href', zipBase64);
-  $('#dllink').text(`ダウンロード(${(new Date()).toString()})`);
-});*/
-
 import * as React from 'react';
 import MaterialTable, {Column} from 'material-table';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
