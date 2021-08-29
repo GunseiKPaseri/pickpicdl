@@ -2,8 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {createTheme, ThemeProvider} from '@material-ui/core';
-import purple from '@material-ui/core/colors/purple';
-import green from '@material-ui/core/colors/green';
 
 import {Provider} from 'react-redux';
 import {
@@ -197,16 +195,7 @@ backgroundPageConnection.onMessage.addListener((message: Message.Message)=>{
 
 
 const Root = () => {
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: purple[500],
-      },
-      secondary: {
-        main: green[500],
-      },
-    },
-  });
+  const theme = createTheme();
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>

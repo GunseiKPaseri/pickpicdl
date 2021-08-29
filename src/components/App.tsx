@@ -31,7 +31,7 @@ $('#dlbutton').on('click', async ()=>{
 });*/
 
 import * as React from 'react';
-import MaterialTable, { Column } from 'material-table';
+import MaterialTable, {Column} from 'material-table';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
 import {convertOption, PicObjWithBlob} from '../type';
 import {
@@ -40,19 +40,27 @@ import {
   getGenZipAction,
   getSetSelectedItemAction,
   State} from '../redux';
-import {useTheme} from '@material-ui/core/styles';
+import {makeStyles, useTheme} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from 'react-redux';
 import {
+  AppBar,
   Button,
   CircularProgress,
-  MenuItem, Select} from '@material-ui/core';
+  IconButton,
+  Link,
+  MenuItem, Select, Toolbar, Tooltip} from '@material-ui/core';
 import {
   GetApp as GetAppIcon,
   Archive as ArchiveIcon} from '@material-ui/icons';
 // import {PasswordForm} from './PasswordForm';
 
+const useStyles = makeStyles((theme) => ({
+  offset: theme.mixins.toolbar,
+}));
+
 const App = ():JSX.Element => {
   const theme = useTheme();
+  const classes = useStyles();
   // Redux State
   const list = useSelector<State, PicObjWithBlob[]>((state) =>
     Object.keys(state.items).map((key)=>state.items[key]));
@@ -91,6 +99,42 @@ const App = ():JSX.Element => {
   ]);
   return (
     <>
+      <AppBar position='fixed'>
+        <Toolbar>
+          <Tooltip title={zip===null && selectedItems.length>0 ? '生成' : ''}>
+            <IconButton color='inherit'
+              disabled={zip!==null || selectedItems.length === 0}
+              onClick={zip===null && selectedItems.length>0 ? ()=>{
+                dispatch(getGenZipAction(selectedItems, mime));
+              } : undefined}>
+              {zip==='loading' ? <CircularProgress /> : <ArchiveIcon /> }
+            </IconButton>
+          </Tooltip>
+          <Select
+            value={mime} onChange={handleMIMESelectChange}>
+            <MenuItem value={'default'}>変換なし</MenuItem>
+            <MenuItem value={'image/png'}>Pngに変換</MenuItem>
+          </Select>
+          {/*
+          // まだパスワード付きはできないっぽい（結構最近に動きがあったからワンチャン）
+          <PasswordForm password={password}
+            handleChange={(p: string) => dispatch(getChangePasswordAction(p))}/>
+          */}
+          {
+            zip===null || zip ==='loading' ? <></>:
+            <Link
+              color='inherit'
+              href={zip.uri}
+              download
+              underline='none'>
+              <Button color='inherit' startIcon={<GetAppIcon />}>
+                ダウンロード({zip.generated.toLocaleString('ja-JP')})
+              </Button>
+            </Link>
+          }
+        </Toolbar>
+      </AppBar>
+      <div className={classes.offset} />
       <MaterialTable options={{
         filtering: true,
         selection: true,
@@ -104,30 +148,6 @@ const App = ():JSX.Element => {
       onSelectionChange={(data) => dispatch(getSetSelectedItemAction(data))}
       columns={columnObject}
       data={list} />
-      <Button disabled={zip!==null || selectedItems.length === 0}
-        startIcon={zip==='loading' ? undefined : <ArchiveIcon />}
-        onClick={zip===null && selectedItems.length>0 ? ()=>{
-          dispatch(getGenZipAction(selectedItems, mime));
-        } : undefined}>
-        {zip==='loading' ? <CircularProgress /> : '生成' }
-      </Button>
-      <Select value={mime} onChange={handleMIMESelectChange}>
-        <MenuItem value={'default'}>変換なし</MenuItem>
-        <MenuItem value={'image/png'}>Pngに変換</MenuItem>
-      </Select>
-      {/*
-      // まだパスワード付きはできないっぽい（結構最近に動きがあったからワンチャン）
-      <PasswordForm password={password}
-        handleChange={(p: string) => dispatch(getChangePasswordAction(p))}/>
-      */}
-      {
-        zip===null || zip ==='loading' ? <></>:
-        <a href = {zip.uri} download style={{textDecoration: 'none'}}>
-          <Button startIcon={<GetAppIcon />}>
-            ダウンロード({zip.generated.toLocaleString('ja-JP')})
-          </Button>
-        </a>
-      }
     </>
   );
 };
