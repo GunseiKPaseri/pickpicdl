@@ -1,70 +1,50 @@
 import * as React from 'react';
-import MaterialTable, {Column} from 'material-table';
-import {lighten} from '@material-ui/core/styles/colorManipulator';
-import {convertOption, PicObjWithBlob} from '../type';
+import {convertOption} from '../type';
 import {
   getClearBlobURIAction,
   //  getChangePasswordAction,
   getGenZipAction,
-  getSetSelectedItemAction,
   State} from '../redux';
-import {makeStyles, useTheme} from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   AppBar,
   Button,
   CircularProgress,
+  FormControl,
   IconButton,
+  InputLabel,
   Link,
   MenuItem, Select, Toolbar, Tooltip} from '@material-ui/core';
 import {
   GetApp as GetAppIcon,
   Archive as ArchiveIcon} from '@material-ui/icons';
+import ImgTable from './ImgTable';
 // import {PasswordForm} from './PasswordForm';
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 const App = ():JSX.Element => {
-  const theme = useTheme();
   const classes = useStyles();
-  // Redux State
-  const list = useSelector<State, PicObjWithBlob[]>((state) =>
-    Object.keys(state.items).map((key)=>state.items[key]));
   // const {selectedItems, zip, password} =
   const {selectedItems, zip} =
     useSelector<State, State>((state)=>state);
   const dispatch = useDispatch();
   // React State
-  const [mime, setMime] = React.useState<convertOption>('default');
+  const [mime, setMime] = React.useState<convertOption>('');
   const handleMIMESelectChange =
     (e: React.ChangeEvent<{value: unknown}>)=>{
       dispatch(getClearBlobURIAction());
-      if (e.target.value ==='default' || e.target.value === 'image/png') {
+      if (e.target.value ==='' || e.target.value === 'image/png') {
         setMime(e.target.value);
       }
     };
-  const [columnObject] = React.useState<Column<PicObjWithBlob>[]>([
-    {
-      title: '画像',
-      render: (rowData) =>
-        <img src={rowData.uri} style={{maxWidth: 50, maxHeight: 50}} />,
-      editable: 'never',
-    },
-    {
-      title: 'URI',
-      field: 'uri',
-      render: (rowData)=><input type='url' value={rowData.uri} readOnly />,
-      editable: 'never',
-    },
-    {
-      title: 'ファイル名',
-      field: 'filename',
-      render: (rowData)=>rowData.filename.slice(-15),
-    },
-    {title: 'リソース', field: 'from', editable: 'never'},
-  ]);
   return (
     <>
       <AppBar position='fixed'>
@@ -75,14 +55,19 @@ const App = ():JSX.Element => {
               onClick={zip===null && selectedItems.length>0 ? ()=>{
                 dispatch(getGenZipAction(selectedItems, mime));
               } : undefined}>
-              {zip==='loading' ? <CircularProgress /> : <ArchiveIcon /> }
+              {zip==='loading' ?
+                <CircularProgress color='inherit' /> : <ArchiveIcon /> }
             </IconButton>
           </Tooltip>
-          <Select
-            value={mime} onChange={handleMIMESelectChange}>
-            <MenuItem value={'default'}>変換なし</MenuItem>
-            <MenuItem value={'image/png'}>Pngに変換</MenuItem>
-          </Select>
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor='converter-option'>形式変換</InputLabel>
+            <Select
+              id='converter-option'
+              value={mime} onChange={handleMIMESelectChange}>
+              <MenuItem value=''>変換なし</MenuItem>
+              <MenuItem value='image/png'>Pngに変換</MenuItem>
+            </Select>
+          </FormControl>
           {/*
           // まだパスワード付きはできないっぽい（結構最近に動きがあったからワンチャン）
           <PasswordForm password={password}
@@ -103,19 +88,7 @@ const App = ():JSX.Element => {
         </Toolbar>
       </AppBar>
       <div className={classes.offset} />
-      <MaterialTable options={{
-        filtering: true,
-        selection: true,
-        showTitle: false,
-        rowStyle: (rowData) => ({
-          backgroundColor:
-            rowData.tableData.checked ?
-              lighten(theme.palette.secondary.light, 0.85) : '',
-        }),
-      }}
-      onSelectionChange={(data) => dispatch(getSetSelectedItemAction(data))}
-      columns={columnObject}
-      data={list} />
+      <ImgTable />
     </>
   );
 };

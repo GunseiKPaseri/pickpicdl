@@ -7,11 +7,11 @@ const config: any = () => {
     // eval回避
     // devtool: 'cheap-source-map',
     entry: {
-      devtools: path.join(__dirname, 'src', 'devtools.ts'),
-      panel: path.join(__dirname, 'src', 'panel.ts'),
-      background: path.join(__dirname, 'src', 'background.ts'),
-      contentScript: path.join(__dirname, 'src', 'contentScript.ts'),
-      browserPolyfill: path.join(__dirname, 'node_modules',
+      'devtools': path.join(__dirname, 'src', 'devtools.ts'),
+      'panel': path.join(__dirname, 'src', 'panel.tsx'),
+      'background': path.join(__dirname, 'src', 'background.ts'),
+      'contentScript': path.join(__dirname, 'src', 'contentScript.ts'),
+      'browser-polyfill': path.join(__dirname, 'node_modules',
           'webextension-polyfill', 'dist', 'browser-polyfill.js'),
     },
     /* output: {

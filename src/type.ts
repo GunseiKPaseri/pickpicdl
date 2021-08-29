@@ -4,7 +4,7 @@ export type PicObjWithoutBlob = {blob: null, filesize: null} & PicObjCommon;
 export type PicObjWithBlob = {blob: Blob, filesize: number} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;
 
-export type convertOption = 'default' | 'image/png';
+export type convertOption = '' | 'image/png';
 
 export type MessageInit = {command: 'init', tabId: number};
 

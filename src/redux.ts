@@ -145,7 +145,7 @@ function* genZipFile({props}: genZip) {
   // convert
   const files: PicObjWithBlob[] = yield call((targets: PicObjWithBlob[]) =>
     Promise.all(targets.map(
-        (x)=>(props.mime === 'default' ?
+        (x)=>(props.mime === '' ?
             Promise.resolve({
               ...x, filename: changeExt(x.filename, mime2ext(x.blob.type))}) :
             imgConverter(x, props.mime)))),
