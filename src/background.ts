@@ -1,4 +1,4 @@
-import * as Message from './message';
+import * as Message from './type';
 // (panel<==>background)connections
 const connections : {[key:string]: chrome.runtime.Port} = {};
 

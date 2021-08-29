@@ -5,18 +5,18 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 const config: any = () => {
   return {
     // eval回避
-    devtool: 'cheap-source-map',
+    // devtool: 'cheap-source-map',
     entry: {
       devtools: path.join(__dirname, 'src', 'devtools.ts'),
       panel: path.join(__dirname, 'src', 'panel.ts'),
       background: path.join(__dirname, 'src', 'background.ts'),
       contentScript: path.join(__dirname, 'src', 'contentScript.ts'),
     },
-    output: {
+    /* output: {
       // buildディレクトリにcontent_scripts.jsを吐く
       path: path.join(__dirname, 'build'),
       filename: '[name].js',
-    },
+    }, */
     module: {
       rules: [
         {
@@ -37,6 +37,9 @@ const config: any = () => {
         ],
       }),
     ],
+    node: {
+      main: 'empty',
+    },
   };
 };
 
