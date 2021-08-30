@@ -9,6 +9,33 @@ const getSHA256Digest = async (msg:string) => {
       .map((b) => b.toString(16).padStart(2, '0')).join('');
 };
 */
+type ElementTree = {name: string, id:string, class: string[]};
+
+const getNodeTree = (target: Element)=>{
+  let x :Element | null = target;
+  const domtree:ElementTree[] = [];
+  while (x !== null) {
+    const classlist = [];
+    if (x.classList) {
+      for (let i=0; i<x.classList.length; i++) {
+        classlist.push(x.classList[i]);
+      }
+    }
+    domtree.unshift({
+      name: x.tagName,
+      id: x.id,
+      class: classlist,
+    });
+    x = x.parentElement;
+  }
+  return domtree;
+};
+const tree2Info = (tree: ElementTree[]) =>
+  tree.map((x)=>
+    x.name.toLowerCase() +
+    (x.class.length === 0 ? '' : '.'+x.class.join('.')) +
+    (x.id === '' ? '' : '#'+x.id),
+  ).join('>');
 
 const getimginfo = (imgUri: string, base: string )=>{
   if (imgUri.indexOf('data:') == 0) {
@@ -23,78 +50,83 @@ const getimginfo = (imgUri: string, base: string )=>{
 const getImgList = (document: Document) =>{
   // img
   const imglist = Array.from(document.getElementsByTagName('img'))
-      .flatMap((element) =>{
+      .flatMap((element): [string, ElementTree[]][] =>{
         const uri = element.getAttribute('src');
-        return ( uri === null ? [] : [uri]);
+        return ( uri === null ? [] : [[uri, getNodeTree(element)]]);
       })
-      .map((uri): [string, Message.PicObj] => {
+      .map(([uri, nodeTree]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
           blob: null,
           filesize: null,
-          from: 'img',
           filename: filename,
+          treeinfo: tree2Info(nodeTree)+'>img',
         }];
       });
   // css
   const csslist = Array.from(document.querySelectorAll('*'))
-      .flatMap((element)=>getComputedStyle(element).backgroundImage)
-      .flatMap((property)=>{
+      .flatMap((element):[string, ElementTree[]][]=>{
+        const property = getComputedStyle(element).backgroundImage;
+        return property ? [[property, getNodeTree(element)]] : [];
+      })
+      .flatMap(([property, et]):[string, ElementTree[]][]=>{
         const x =
           property.match(
               /((data|https?):)?\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
-        return (x===null ? [] : x);
+        return (x===null ? [] : x.map((uri)=>[uri, et]));
       })
-      .map((uri): [string, Message.PicObj] => {
+      .map(([uri, et]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
           blob: null,
           filesize: null,
-          from: 'css',
           filename: filename,
+          treeinfo: tree2Info(et)+'>css',
         }];
       });
   // svg
   const svglist = Array.from(document.getElementsByTagName('svg'))
-      .flatMap((svgElement) => {
+      .flatMap((svgElement): [string, ElementTree[]][] => {
         const expressedElmentCnt = Array.from(svgElement.children)
             .filter((x)=>x.tagName !== 'defs').length;
         return ( expressedElmentCnt === 0 ?
-        [] : [window.btoa(new XMLSerializer().serializeToString(svgElement))]);
+        [] :
+        [[window.btoa(new XMLSerializer().serializeToString(svgElement)),
+          getNodeTree(svgElement)]]);
       })
-      .map((base64): [string, Message.PicObj] => {
+      .map(([base64, et]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] =
           getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
           blob: null,
           filesize: null,
-          from: 'svg',
           filename: filename,
+          treeinfo: tree2Info(et)+'>svg',
         }];
       });
   // canvas
   const canvaslist = Array.from(document.getElementsByTagName('canvas'))
-      .flatMap((canvasElement) =>{
+      .flatMap((canvasElement):[string, ElementTree[]][] =>{
         try {
           const dataURI = canvasElement.toDataURL();
-          return dataURI ? [dataURI] : [];
+          return dataURI ? [[dataURI, getNodeTree(canvasElement)]] : [];
         } catch (e) {
           // CROSS-ORIGIN ERROR
           return [];
         }
       })
-      .map((base64URI): [string, Message.PicObj] => {
+      .map(([base64URI, et]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] =
           getimginfo(base64URI, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
           blob: null,
           filesize: null,
-          from: 'canvas',
           filename: filename,
+          treeinfo: tree2Info(et)+'>canvas',
         }];
       });
   return [...imglist, ...csslist, ...svglist, ...canvaslist];

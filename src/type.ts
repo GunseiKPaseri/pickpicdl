@@ -1,5 +1,6 @@
 export type ImgResource = 'img' | 'css' | 'svg' | 'canvas';
-type PicObjCommon = {uri: string, filename: string, from: ImgResource};
+type PicObjCommon = {
+  uri: string, filename: string, treeinfo: string};
 export type PicObjWithoutBlob = {blob: null, filesize: null} & PicObjCommon;
 export type PicObjWithBlob = {blob: Blob, filesize: number} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;
@@ -16,7 +17,7 @@ export type MessageRequestImgList = {
 export type MessagePicList = {
   command: 'putimglist',
   url: string,
-  imglist: {[keyof: string]: PicObj}
+  imglist: {[keyof: string]: PicObj},
 };
 
 export type Message = MessageInit | MessagePicList | MessageRequestImgList;

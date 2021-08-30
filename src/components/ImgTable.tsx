@@ -28,9 +28,14 @@ const ImgTable = ():JSX.Element => {
     {
       title: 'ファイル名',
       field: 'filename',
-      render: (rowData)=>rowData.filename.slice(-15),
+      render: (rowData)=>
+        (rowData.filename.length > 15 ?
+          '...'+rowData.filename.slice(-15) : rowData.filename),
     },
-    {title: 'リソース', field: 'from', editable: 'never'},
+    {title: 'リソース', field: 'treeinfo', editable: 'never',
+      render: (rowData)=>
+        (rowData.treeinfo.length > 30 ?
+          '...'+rowData.treeinfo.slice(-30) : rowData.treeinfo)},
   ]);
   const dispatch = useDispatch();
   return (
