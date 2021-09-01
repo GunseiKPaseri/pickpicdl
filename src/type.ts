@@ -1,6 +1,6 @@
 export type ImgResource = 'img' | 'css' | 'svg' | 'canvas';
 type PicObjCommon = {
-  uri: string, filename: string, treeinfo: string};
+  uri: string, filename: string, treeinfo: string, selector: string};
 export type PicObjWithoutBlob = {blob: null, filesize: null} & PicObjCommon;
 export type PicObjWithBlob = {blob: Blob, filesize: number} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;
@@ -20,5 +20,15 @@ export type MessagePicList = {
   imglist: {[keyof: string]: PicObj},
 };
 
-export type Message = MessageInit | MessagePicList | MessageRequestImgList;
+export type MessageSelectDOMElement = {
+  command: 'selectDOMElement',
+  selector: string,
+  tabId: number,
+}
+
+export type Message =
+  | MessageInit
+  | MessagePicList
+  | MessageRequestImgList
+  | MessageSelectDOMElement;
 

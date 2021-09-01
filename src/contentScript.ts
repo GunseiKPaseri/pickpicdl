@@ -1,5 +1,6 @@
 import * as Message from './type';
 import browser from 'webextension-polyfill';
+import {v4 as uuidv4} from 'uuid';
 
 /*
 const getSHA256Digest = async (msg:string) => {
@@ -10,6 +11,27 @@ const getSHA256Digest = async (msg:string) => {
 };
 */
 type ElementTree = {name: string, id:string, class: string[]};
+
+type ElementInfo = {
+  [keyof: string]: [ElementTree[], string];
+};
+
+const elementMemo:ElementInfo = {};
+
+const classPrefix = 'picpickdl';
+
+const getUniqueElementSelector = (target: Element)=>{
+  if (target.classList) {
+    for (let i=0; i<target.classList.length; i++) {
+      if (target.classList[i].indexOf(classPrefix)===0) {
+        return `.${target.classList[i]}`;
+      }
+    }
+  }
+  const newUniqueClass = classPrefix + uuidv4();
+  target.classList.add(newUniqueClass);
+  return `.${newUniqueClass}`;
+};
 
 const getNodeTree = (target: Element)=>{
   let x :Element | null = target;
@@ -22,7 +44,7 @@ const getNodeTree = (target: Element)=>{
       }
     }
     domtree.unshift({
-      name: x.tagName,
+      name: x.tagName.toLowerCase(),
       id: x.id,
       class: classlist,
     });
@@ -30,12 +52,22 @@ const getNodeTree = (target: Element)=>{
   }
   return domtree;
 };
+
 const tree2Info = (tree: ElementTree[]) =>
   tree.map((x)=>
-    x.name.toLowerCase() +
+    x.name +
     (x.class.length === 0 ? '' : '.'+x.class.join('.')) +
     (x.id === '' ? '' : '#'+x.id),
   ).join('>');
+
+const getNodeTreeMemo = (target: Element, str: string): [string, string]=>{
+  const selector = getUniqueElementSelector(target);
+  if (!elementMemo[selector]) {
+    const tree = getNodeTree(target);
+    elementMemo[selector] = [tree, tree2Info(tree)];
+  }
+  return [selector, elementMemo[selector][1]+`>${str}`];
+};
 
 const getimginfo = (imgUri: string, base: string )=>{
   if (imgUri.indexOf('data:') == 0) {
@@ -50,53 +82,60 @@ const getimginfo = (imgUri: string, base: string )=>{
 const getImgList = (document: Document) =>{
   // img
   const imglist = Array.from(document.getElementsByTagName('img'))
-      .flatMap((element): [string, ElementTree[]][] =>{
+      .flatMap((element): [string, string, string][] =>{
         const uri = element.getAttribute('src');
-        return ( uri === null ? [] : [[uri, getNodeTree(element)]]);
+        return ( uri === null ?
+          [] :
+          [[uri, ...getNodeTreeMemo(element, 'img')]]
+        );
       })
-      .map(([uri, nodeTree]): [string, Message.PicObj] => {
+      .map(([uri, selector, treeinfo]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
           blob: null,
           filesize: null,
           filename: filename,
-          treeinfo: tree2Info(nodeTree)+'>img',
+          selector,
+          treeinfo,
         }];
       });
   // css
   const csslist = Array.from(document.querySelectorAll('*'))
-      .flatMap((element):[string, ElementTree[]][]=>{
+      .flatMap((element):[string, Element][]=>{
         const property = getComputedStyle(element).backgroundImage;
-        return property ? [[property, getNodeTree(element)]] : [];
+        return property ? [[property, element]] : [];
       })
-      .flatMap(([property, et]):[string, ElementTree[]][]=>{
+      .flatMap(([property, element]):[string, string, string][]=>{
         const x =
           property.match(
               /((data|https?):)?\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
-        return (x===null ? [] : x.map((uri)=>[uri, et]));
+        return (x===null ?
+            [] :
+            x.map((uri)=>[uri, ...getNodeTreeMemo(element, 'css')]));
       })
-      .map(([uri, et]): [string, Message.PicObj] => {
+      .map(([uri, selector, treeinfo]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
           blob: null,
           filesize: null,
           filename: filename,
-          treeinfo: tree2Info(et)+'>css',
+          selector,
+          treeinfo,
         }];
       });
   // svg
   const svglist = Array.from(document.getElementsByTagName('svg'))
-      .flatMap((svgElement): [string, ElementTree[]][] => {
+      .flatMap((svgElement): [string, string, string][] => {
         const expressedElmentCnt = Array.from(svgElement.children)
             .filter((x)=>x.tagName !== 'defs').length;
         return ( expressedElmentCnt === 0 ?
         [] :
         [[window.btoa(new XMLSerializer().serializeToString(svgElement)),
-          getNodeTree(svgElement)]]);
+          ...getNodeTreeMemo(svgElement, 'svg')]]);
       })
-      .map(([base64, et]): [string, Message.PicObj] => {
+      .map(([base64, selector, treeinfo]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] =
           getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
         return [imgTrueUri, {
@@ -104,21 +143,24 @@ const getImgList = (document: Document) =>{
           blob: null,
           filesize: null,
           filename: filename,
-          treeinfo: tree2Info(et)+'>svg',
+          selector,
+          treeinfo,
         }];
       });
   // canvas
   const canvaslist = Array.from(document.getElementsByTagName('canvas'))
-      .flatMap((canvasElement):[string, ElementTree[]][] =>{
+      .flatMap((canvasElement):[string, string, string][] =>{
         try {
           const dataURI = canvasElement.toDataURL();
-          return dataURI ? [[dataURI, getNodeTree(canvasElement)]] : [];
+          return dataURI ?
+            [[dataURI, ...getNodeTreeMemo(canvasElement, 'canvas')]] :
+            [];
         } catch (e) {
           // CROSS-ORIGIN ERROR
           return [];
         }
       })
-      .map(([base64URI, et]): [string, Message.PicObj] => {
+      .map(([base64URI, selector, treeinfo]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] =
           getimginfo(base64URI, location.href);
         return [imgTrueUri, {
@@ -126,7 +168,8 @@ const getImgList = (document: Document) =>{
           blob: null,
           filesize: null,
           filename: filename,
-          treeinfo: tree2Info(et)+'>canvas',
+          selector,
+          treeinfo,
         }];
       });
   return [...imglist, ...csslist, ...svglist, ...canvaslist];
@@ -162,13 +205,49 @@ const sendImgList = () => {
   });
 };
 
+
+/* DOM SELECTOR */
+const markElement = document.createElement('div');
+markElement.style.backgroundColor = 'rgba(175,223,228,0.5)';
+markElement.style.border = 'dashed 2px #0000FF';
+markElement.style.display = 'none';
+markElement.style.zIndex = '8000';
+
+document.body.appendChild(markElement);
+
+const selectElement = (selector: string) =>{
+  const target = document.querySelector(selector);
+  if (!target) {
+    // HIDE
+    markElement.style.display = 'none';
+    return;
+  }
+  const {left, top} = target.getBoundingClientRect();
+  if (target === null) return;
+  markElement.style.top = `${window.pageYOffset + top}px`;
+  markElement.style.left = `${window.pageXOffset + left}px`;
+  markElement.style.width = `${target.clientWidth}px`;
+  markElement.style.height = `${target.clientHeight}px`;
+  markElement.style.display = 'block';
+  markElement.style.position = 'absolute';
+  // TODO position-fixじゃなければ画像の中心が画面の真ん中に来るように
+  scrollTo(0,
+      window.pageYOffset + top + target.clientHeight/2 - window.innerHeight/2);
+};
+
+/* EVENT LISTENER & TRIGGER */
 window.addEventListener('load', function() {
   sendImgList();
 });
 
-browser.runtime.onMessage.addListener((message) => {
-  if (message.command === 'requestImgList') {
-    sendImgList();
+browser.runtime.onMessage.addListener((message: Message.Message) => {
+  switch (message.command) {
+    case 'requestImgList':
+      sendImgList();
+      break;
+    case 'selectDOMElement':
+      selectElement(message.selector);
+      break;
   }
 });
 

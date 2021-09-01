@@ -4,18 +4,28 @@ const backgroundPageConnection = browser.runtime.connect({
   name: 'picpickdl-devpage',
 });
 
+const execed = new Set();
+
 const initialisePanel = ()=>{
   const tabId = browser.devtools.inspectedWindow.tabId;
-  browser.tabs.executeScript(tabId, {file: 'browser-polyfill.js'});
-  browser.tabs.executeScript(tabId, {
-    file: 'contentScript.js',
-  }).then((result)=>{
-    console.log(result);
+  if (execed.has(tabId)) {
     backgroundPageConnection.postMessage({
       command: 'requestImgList',
       tabId: tabId,
     });
-  });
+  } else {
+    execed.add(tabId);
+    browser.tabs.executeScript(tabId, {file: 'browser-polyfill.js'});
+    browser.tabs.executeScript(tabId, {
+      file: 'contentScript.js',
+    }).then((result)=>{
+      console.log(result);
+      backgroundPageConnection.postMessage({
+        command: 'requestImgList',
+        tabId: tabId,
+      });
+    });
+  }
 };
 
 browser.devtools.panels.create(

@@ -67,6 +67,16 @@ backgroundPageConnection.onMessage.addListener((message: Message)=>{
   }
 });
 
+export const selectElementCommand = (selector: string)=> {
+  backgroundPageConnection.postMessage({
+    command: 'selectDOMElement',
+    selector,
+    tabId: browser.devtools.inspectedWindow.tabId,
+  });
+};
+
+// Render
+
 const Root = () => {
   const theme = createTheme();
   return (

@@ -1,10 +1,12 @@
-import MaterialTable, {Column} from 'material-table';
+import MaterialTable, {Action, Column} from 'material-table';
 import React from 'react';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
 import {useTheme} from '@material-ui/core';
+import {CenterFocusWeak as CenterFocusWeakIcon} from '@material-ui/icons';
 import {useDispatch, useSelector} from 'react-redux';
 import {getSetSelectedItemAction, State} from '../redux';
 import {PicObjWithBlob} from '../type';
+import {selectElementCommand} from '../panel';
 
 
 const ImgTable = ():JSX.Element => {
@@ -37,6 +39,22 @@ const ImgTable = ():JSX.Element => {
         (rowData.treeinfo.length > 30 ?
           '...'+rowData.treeinfo.slice(-30) : rowData.treeinfo)},
   ]);
+
+  const actions: Action<PicObjWithBlob>[] = [
+    {
+      icon: () => <CenterFocusWeakIcon />,
+      tooltip: '選択',
+      onClick: (e, rowData)=>{
+        if (Array.isArray(rowData)) {
+          //
+        } else {
+          selectElementCommand(rowData.selector);
+        }
+      },
+      position: 'row',
+    },
+  ];
+
   const dispatch = useDispatch();
   return (
     <MaterialTable options={{
@@ -51,7 +69,8 @@ const ImgTable = ():JSX.Element => {
     }}
     onSelectionChange={(data) => dispatch(getSetSelectedItemAction(data))}
     columns={columnObject}
-    data={list} />
+    data={list}
+    actions={actions}/>
   );
 };
 export default ImgTable;
