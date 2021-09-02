@@ -1,13 +1,27 @@
 import MaterialTable, {Action, Column} from 'material-table';
-import React from 'react';
+import React, {CSSProperties} from 'react';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
 import {useTheme} from '@material-ui/core';
 import {CenterFocusWeak as CenterFocusWeakIcon} from '@material-ui/icons';
 import {useDispatch, useSelector} from 'react-redux';
-import {getSetSelectedItemAction, State} from '../redux';
+import {getSetHoverItemAction, getSetSelectedItemAction, State} from '../redux';
 import {PicObjWithBlob} from '../type';
 import {selectElementCommand} from '../panel';
 
+const ImgStyle:CSSProperties = {
+  objectFit: 'contain',
+  width: 56,
+  height: 56,
+  background: `
+    linear-gradient(
+      45deg, #9e9e9e 25%, transparent 25%, transparent 75%, #9e9e9e 75%),
+    linear-gradient(
+      45deg, #9e9e9e 25%, transparent 25%, transparent 75%, #9e9e9e 75%)
+  `,
+  backgroundSize: '16px 16px',
+  backgroundPosition: '0 0, 8px 8px',
+  backgroundColor: '#e0e0e0',
+};
 
 const ImgTable = ():JSX.Element => {
   const theme = useTheme();
@@ -18,7 +32,22 @@ const ImgTable = ():JSX.Element => {
     {
       title: '画像',
       render: (rowData) =>
-        <img src={rowData.uri} style={{maxWidth: 50, maxHeight: 50}} />,
+        <img
+          src={rowData.uri}
+          style={ImgStyle}
+          onMouseEnter={(e) => {
+            const t = e.target as HTMLImageElement;
+            const {left, top} = t.getBoundingClientRect();
+            dispatch(getSetHoverItemAction({
+              src: rowData.uri,
+              left: left + t.clientWidth,
+              top: top + t.clientHeight/2,
+            }));
+          }}
+          onMouseLeave={(e) => {
+            dispatch(getSetHoverItemAction(null));
+          }}
+        />,
       editable: 'never',
     },
     {

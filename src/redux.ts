@@ -1,8 +1,8 @@
 import {Action} from 'redux';
-import {convertOption, PicObjWithBlob} from './type';
+import {convertOption, HoveringItem, PicObjWithBlob} from './type';
 
 // define ActionTypes
-const AppPrefix = 'picpickdl/' as const;
+const AppPrefix = '@@picpickdl/' as const;
 const ActionTypes = {
   SET_URL: `${AppPrefix}SET_URL`,
   SET_SELECTED_ITEM: `${AppPrefix}SET_SELECTED_ITEM`,
@@ -14,6 +14,7 @@ const ActionTypes = {
   GEN_ZIP: `${AppPrefix}GEN_ZIP`,
   REQUEST_GEN_ZIP: `${AppPrefix}REQUEST_GEN_ZIP`,
   RESPONSE_GEN_ZIP: `${AppPrefix}RESPONSE_GEN_ZIP`,
+  SET_HOVER_ITEM: `${AppPrefix}SET_HOVER_ITEM`,
 } as const;
 
 // define Action & ActionGenerator
@@ -117,6 +118,17 @@ export const getResponseGenZipAction = (uri: string):responseGenZip => ({
   props: {uri},
 });
 
+// SET_HOVER_ITEM
+
+interface setHoverItem extends Action {
+  type: typeof ActionTypes.SET_HOVER_ITEM,
+  props: HoveringItem | null,
+}
+export const getSetHoverItemAction =
+  (item: HoveringItem | null):setHoverItem => ({
+    type: ActionTypes.SET_HOVER_ITEM,
+    props: item,
+  });
 
 // total
 type AppActions =
@@ -129,7 +141,8 @@ type AppActions =
   genZip |
   clearBlobURIAction |
   requestGenZip |
-  responseGenZip;
+  responseGenZip |
+  setHoverItem;
 
 // Saga
 
@@ -179,6 +192,7 @@ export type State = {
   baduri: Set<string>;
   zip: null | 'loading' | {uri: string, generated: Date};
   password: string;
+  hovering: HoveringItem | null;
 };
 export const initialState:State = {
   url: '',
@@ -187,6 +201,7 @@ export const initialState:State = {
   baduri: new Set(),
   zip: null,
   password: '',
+  hovering: null,
 };
 
 export const reducer = (state=initialState, action: AppActions):State=>{
@@ -258,6 +273,11 @@ export const reducer = (state=initialState, action: AppActions):State=>{
       return {
         ...state,
         zip: {uri: action.props.uri, generated: new Date()},
+      };
+    case ActionTypes.SET_HOVER_ITEM:
+      return {
+        ...state,
+        hovering: (action.props ? {...action.props} : null),
       };
     default: return state;
   }

@@ -37,3 +37,8 @@ export type Message =
   | MessageRequestImgList
   | MessageSelectDOMElement;
 
+export type HoveringItem = {
+  src: string,
+  left: number,
+  top: number
+}

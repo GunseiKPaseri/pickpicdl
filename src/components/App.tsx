@@ -20,6 +20,7 @@ import {
   GetApp as GetAppIcon,
   Archive as ArchiveIcon} from '@material-ui/icons';
 import ImgTable from './ImgTable';
+import {ImgViewer} from './ImgViewer';
 // import {PasswordForm} from './PasswordForm';
 
 const useStyles = makeStyles((theme) => ({
@@ -33,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 const App = ():JSX.Element => {
   const classes = useStyles();
   // const {selectedItems, zip, password} =
-  const {selectedItems, zip} =
+  const {selectedItems, zip, hovering} =
     useSelector<State, State>((state)=>state);
   const dispatch = useDispatch();
   // React State
@@ -89,6 +90,7 @@ const App = ():JSX.Element => {
       </AppBar>
       <div className={classes.offset} />
       <ImgTable />
+      {hovering && <ImgViewer />}
     </>
   );
 };
