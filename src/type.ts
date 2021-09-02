@@ -1,6 +1,11 @@
 export type ImgResource = 'img' | 'css' | 'svg' | 'canvas';
 type PicObjCommon = {
-  uri: string, filename: string, treeinfo: string, selector: string};
+  uri: string,
+  filename: string,
+  treeinfo: string,
+  selector: string,
+  isFixed: boolean
+};
 export type PicObjWithoutBlob = {blob: null, filesize: null} & PicObjCommon;
 export type PicObjWithBlob = {blob: Blob, filesize: number} & PicObjCommon;
 export type PicObj = PicObjWithBlob | PicObjWithoutBlob;

@@ -13,7 +13,7 @@ const getSHA256Digest = async (msg:string) => {
 type ElementTree = {name: string, id:string, class: string[]};
 
 type ElementInfo = {
-  [keyof: string]: [ElementTree[], string];
+  [keyof: string]: [ElementTree[], string, boolean];
 };
 
 const elementMemo:ElementInfo = {};
@@ -33,8 +33,9 @@ const getUniqueElementSelector = (target: Element)=>{
   return `.${newUniqueClass}`;
 };
 
-const getNodeTree = (target: Element)=>{
+const getNodeTree = (target: Element): [boolean, ElementTree[]]=>{
   let x :Element | null = target;
+  let isFixed: boolean = false;
   const domtree:ElementTree[] = [];
   while (x !== null) {
     const classlist = [];
@@ -48,9 +49,10 @@ const getNodeTree = (target: Element)=>{
       id: x.id,
       class: classlist,
     });
+    if (window.getComputedStyle(x).position === 'fixed') isFixed = true;
     x = x.parentElement;
   }
-  return domtree;
+  return [isFixed, domtree];
 };
 
 const tree2Info = (tree: ElementTree[]) =>
@@ -60,14 +62,16 @@ const tree2Info = (tree: ElementTree[]) =>
     (x.id === '' ? '' : '#'+x.id),
   ).join('>');
 
-const getNodeTreeMemo = (target: Element, str: string): [string, string]=>{
-  const selector = getUniqueElementSelector(target);
-  if (!elementMemo[selector]) {
-    const tree = getNodeTree(target);
-    elementMemo[selector] = [tree, tree2Info(tree)];
-  }
-  return [selector, elementMemo[selector][1]+`>${str}`];
-};
+const getNodeTreeMemo =
+  (target: Element, str: string): [string, string, boolean]=>{
+    const selector = getUniqueElementSelector(target);
+    if (!elementMemo[selector]) {
+      const [isFixed, tree] = getNodeTree(target);
+      elementMemo[selector] = [tree, tree2Info(tree), isFixed];
+    }
+    return [
+      selector, elementMemo[selector][1]+`>${str}`, elementMemo[selector][2]];
+  };
 
 const getimginfo = (imgUri: string, base: string )=>{
   if (imgUri.indexOf('data:') == 0) {
@@ -82,14 +86,14 @@ const getimginfo = (imgUri: string, base: string )=>{
 const getImgList = (document: Document) =>{
   // img
   const imglist = Array.from(document.getElementsByTagName('img'))
-      .flatMap((element): [string, string, string][] =>{
+      .flatMap((element): [string, string, string, boolean][] =>{
         const uri = element.getAttribute('src');
         return ( uri === null ?
           [] :
           [[uri, ...getNodeTreeMemo(element, 'img')]]
         );
       })
-      .map(([uri, selector, treeinfo]): [string, Message.PicObj] => {
+      .map(([uri, selector, treeinfo, isFixed]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
@@ -98,6 +102,7 @@ const getImgList = (document: Document) =>{
           filename: filename,
           selector,
           treeinfo,
+          isFixed,
         }];
       });
   // css
@@ -106,7 +111,7 @@ const getImgList = (document: Document) =>{
         const property = getComputedStyle(element).backgroundImage;
         return property ? [[property, element]] : [];
       })
-      .flatMap(([property, element]):[string, string, string][]=>{
+      .flatMap(([property, element]):[string, string, string, boolean][]=>{
         const x =
           property.match(
               /((data|https?):)?\/\/[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+/g);
@@ -114,7 +119,7 @@ const getImgList = (document: Document) =>{
             [] :
             x.map((uri)=>[uri, ...getNodeTreeMemo(element, 'css')]));
       })
-      .map(([uri, selector, treeinfo]): [string, Message.PicObj] => {
+      .map(([uri, selector, treeinfo, isFixed]): [string, Message.PicObj] => {
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
@@ -123,11 +128,12 @@ const getImgList = (document: Document) =>{
           filename: filename,
           selector,
           treeinfo,
+          isFixed,
         }];
       });
   // svg
   const svglist = Array.from(document.getElementsByTagName('svg'))
-      .flatMap((svgElement): [string, string, string][] => {
+      .flatMap((svgElement): [string, string, string, boolean][] => {
         const expressedElmentCnt = Array.from(svgElement.children)
             .filter((x)=>x.tagName !== 'defs').length;
         return ( expressedElmentCnt === 0 ?
@@ -135,21 +141,23 @@ const getImgList = (document: Document) =>{
         [[window.btoa(new XMLSerializer().serializeToString(svgElement)),
           ...getNodeTreeMemo(svgElement, 'svg')]]);
       })
-      .map(([base64, selector, treeinfo]): [string, Message.PicObj] => {
-        const [imgTrueUri, filename] =
-          getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
-        return [imgTrueUri, {
-          uri: imgTrueUri,
-          blob: null,
-          filesize: null,
-          filename: filename,
-          selector,
-          treeinfo,
-        }];
-      });
+      .map(
+          ([base64, selector, treeinfo, isFixed]): [string, Message.PicObj] => {
+            const [imgTrueUri, filename] =
+              getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
+            return [imgTrueUri, {
+              uri: imgTrueUri,
+              blob: null,
+              filesize: null,
+              filename: filename,
+              selector,
+              treeinfo,
+              isFixed,
+            }];
+          });
   // canvas
   const canvaslist = Array.from(document.getElementsByTagName('canvas'))
-      .flatMap((canvasElement):[string, string, string][] =>{
+      .flatMap((canvasElement):[string, string, string, boolean][] =>{
         try {
           const dataURI = canvasElement.toDataURL();
           return dataURI ?
@@ -160,18 +168,23 @@ const getImgList = (document: Document) =>{
           return [];
         }
       })
-      .map(([base64URI, selector, treeinfo]): [string, Message.PicObj] => {
-        const [imgTrueUri, filename] =
-          getimginfo(base64URI, location.href);
-        return [imgTrueUri, {
-          uri: imgTrueUri,
-          blob: null,
-          filesize: null,
-          filename: filename,
-          selector,
-          treeinfo,
-        }];
-      });
+      .map(
+          ([base64URI,
+            selector,
+            treeinfo,
+            isFixed]): [string, Message.PicObj] => {
+            const [imgTrueUri, filename] =
+              getimginfo(base64URI, location.href);
+            return [imgTrueUri, {
+              uri: imgTrueUri,
+              blob: null,
+              filesize: null,
+              filename: filename,
+              selector,
+              treeinfo,
+              isFixed,
+            }];
+          });
   return [...imglist, ...csslist, ...svglist, ...canvaslist];
 };
 
@@ -209,14 +222,24 @@ const sendImgList = () => {
 /* DOM SELECTOR */
 const markElement = document.createElement('div');
 markElement.style.backgroundColor = 'rgba(175,223,228,0.5)';
-markElement.style.border = 'dashed 2px #0000FF';
+markElement.style.borderStyle = 'dashed';
+markElement.style.borderColor = '#0000FF';
+markElement.style.boxSizing = 'border-box';
 markElement.style.display = 'none';
 markElement.style.zIndex = '8000';
 
+const blinkAnimation = [
+  {backgroundColor: 'rgba(175,223,228,0.3)', borderWidth: '0px'},
+  {backgroundColor: 'rgba(175,223,228,0.8)', borderWidth: '2px'},
+  {backgroundColor: 'rgba(175,223,228,0.3)', borderWidth: '0px'},
+];
+
+markElement.animate(blinkAnimation, {duration: 1000, iterations: Infinity});
 document.body.appendChild(markElement);
 
 const selectElement = (selector: string) =>{
   const target = document.querySelector(selector);
+  const [, , isFixed] = elementMemo[selector];
   if (!target) {
     // HIDE
     markElement.style.display = 'none';
@@ -224,15 +247,18 @@ const selectElement = (selector: string) =>{
   }
   const {left, top} = target.getBoundingClientRect();
   if (target === null) return;
-  markElement.style.top = `${window.pageYOffset + top}px`;
-  markElement.style.left = `${window.pageXOffset + left}px`;
+  markElement.style.top = `${(isFixed ? top : window.pageYOffset + top)}px`;
+  markElement.style.left = `${(isFixed ? left : window.pageXOffset + left)}px`;
   markElement.style.width = `${target.clientWidth}px`;
   markElement.style.height = `${target.clientHeight}px`;
   markElement.style.display = 'block';
-  markElement.style.position = 'absolute';
+  markElement.style.position = isFixed ? 'fixed' : 'absolute';
   // TODO position-fixじゃなければ画像の中心が画面の真ん中に来るように
-  scrollTo(0,
-      window.pageYOffset + top + target.clientHeight/2 - window.innerHeight/2);
+  if (!isFixed) {
+    const pos = window.pageYOffset + top +
+        target.clientHeight/2 - window.innerHeight/2;
+    window.scrollTo({top: pos, behavior: 'smooth'});
+  }
 };
 
 /* EVENT LISTENER & TRIGGER */
