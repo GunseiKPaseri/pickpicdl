@@ -27,12 +27,19 @@ const initialisePanel = ()=>{
     });
   }
 };
+const unInitialisePanel = ()=>{
+  const tabId = browser.devtools.inspectedWindow.tabId;
+  backgroundPageConnection.postMessage({
+    command: 'removeSelector',
+    tabId: tabId,
+  });
+};
 
 browser.devtools.panels.create(
-    'PicPickDL',
+    '💟PicPickDL',
     'icons/icon_16.png',
     './panel.html',
 ).then((panel)=>{
   panel.onShown.addListener(initialisePanel);
-  // panel.onHidden.addListener(unInitialisePanel);
+  panel.onHidden.addListener(unInitialisePanel);
 });

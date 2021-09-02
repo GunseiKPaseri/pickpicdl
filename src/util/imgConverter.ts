@@ -13,3 +13,7 @@ export const imgConverter =async (beforeObj: PicObjWithBlob, mime: string) => {
     blob: convertedBlob,
   };
 };
+
+export const str2bintxt = (str: string)=>{
+  return window.btoa(unescape(encodeURI(str)));
+};

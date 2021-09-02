@@ -31,11 +31,20 @@ export type MessageSelectDOMElement = {
   tabId: number,
 }
 
+export type MessageRemoveSelector = {
+  command: 'removeSelector',
+  tabId: number,
+}
+
+
+export const classPrefix = '💟';
+
 export type Message =
   | MessageInit
   | MessagePicList
   | MessageRequestImgList
-  | MessageSelectDOMElement;
+  | MessageSelectDOMElement
+  | MessageRemoveSelector;
 
 export type HoveringItem = {
   src: string,

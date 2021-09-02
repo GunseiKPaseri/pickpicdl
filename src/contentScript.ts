@@ -1,6 +1,8 @@
 import * as Message from './type';
 import browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
+import {str2bintxt} from './util/imgConverter';
+import {classPrefix} from './type';
 
 /*
 const getSHA256Digest = async (msg:string) => {
@@ -18,7 +20,10 @@ type ElementInfo = {
 
 const elementMemo:ElementInfo = {};
 
-const classPrefix = 'picpickdl';
+const UniqueClassRegex =
+    new RegExp('\s?'+classPrefix+
+        '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+    'gi');
 
 const getUniqueElementSelector = (target: Element)=>{
   if (target.classList) {
@@ -136,9 +141,12 @@ const getImgList = (document: Document) =>{
       .flatMap((svgElement): [string, string, string, boolean][] => {
         const expressedElmentCnt = Array.from(svgElement.children)
             .filter((x)=>x.tagName !== 'defs').length;
+        const svgString = new XMLSerializer()
+            .serializeToString(svgElement)
+            .replace(UniqueClassRegex, '');
         return ( expressedElmentCnt === 0 ?
         [] :
-        [[window.btoa(new XMLSerializer().serializeToString(svgElement)),
+        [[str2bintxt(svgString),
           ...getNodeTreeMemo(svgElement, 'svg')]]);
       })
       .map(
@@ -239,12 +247,12 @@ document.body.appendChild(markElement);
 
 const selectElement = (selector: string) =>{
   const target = document.querySelector(selector);
-  const [, , isFixed] = elementMemo[selector];
   if (!target) {
     // HIDE
     markElement.style.display = 'none';
     return;
   }
+  const [, , isFixed] = elementMemo[selector];
   const {left, top} = target.getBoundingClientRect();
   if (target === null) return;
   markElement.style.top = `${(isFixed ? top : window.pageYOffset + top)}px`;
@@ -273,6 +281,9 @@ browser.runtime.onMessage.addListener((message: Message.Message) => {
       break;
     case 'selectDOMElement':
       selectElement(message.selector);
+      break;
+    case 'removeSelector':
+      selectElement('_');
       break;
   }
 });
