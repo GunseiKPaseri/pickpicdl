@@ -40,8 +40,8 @@ const ImgTable = ():JSX.Element => {
             const {left, top} = t.getBoundingClientRect();
             dispatch(getSetHoverItemAction({
               src: rowData.uri,
-              left: left + t.clientWidth,
-              top: top + t.clientHeight/2,
+              left: window.pageXOffset + left + t.clientWidth,
+              top: window.pageYOffset + top + t.clientHeight/2,
             }));
           }}
           onMouseLeave={(e) => {
