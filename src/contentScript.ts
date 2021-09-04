@@ -235,7 +235,7 @@ const sendImgList = () => {
 const markElement = document.querySelector<HTMLDivElement>(`div.${overEx}`) ||
     (()=>{
       const newElement = document.createElement('div');
-      newElement.classList.add(`div.${overEx}`);
+      newElement.classList.add(overEx);
       return newElement;
     })();
 markElement.style.backgroundColor = 'rgba(175,223,228,0.5)';
