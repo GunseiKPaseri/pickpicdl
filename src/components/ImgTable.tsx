@@ -69,20 +69,18 @@ const ImgTable = ():JSX.Element => {
           '...'+rowData.treeinfo.slice(-30) : rowData.treeinfo)},
   ]);
 
-  const actions: Action<PicObjWithBlob>[] = [
-    {
-      icon: () => <CenterFocusWeakIcon />,
-      tooltip: '選択',
-      onClick: (e, rowData)=>{
-        if (Array.isArray(rowData)) {
-          //
-        } else {
-          selectElementCommand(rowData.selector);
-        }
-      },
-      position: 'row',
+  const actions: Action<PicObjWithBlob>[] = [{
+    icon: () => <CenterFocusWeakIcon />,
+    tooltip: '選択',
+    onClick: (e, rowDatas)=>{
+      if (Array.isArray(rowDatas)) {
+        //
+      } else {
+        selectElementCommand(rowDatas.selector);
+      }
     },
-  ];
+    position: 'row',
+  }];
 
   const dispatch = useDispatch();
   return (
@@ -95,6 +93,9 @@ const ImgTable = ():JSX.Element => {
             rowData.tableData.checked ?
             lighten(theme.palette.secondary.light, 0.85) : '',
       }),
+    }}
+    localization={{
+      header: {actions: ''},
     }}
     onSelectionChange={(data) => dispatch(getSetSelectedItemAction(data))}
     columns={columnObject}

@@ -1,6 +1,7 @@
 export type ImgResource = 'img' | 'css' | 'svg' | 'canvas';
 type PicObjCommon = {
   uri: string,
+  locale: string,
   filename: string,
   treeinfo: string,
   selector: string,

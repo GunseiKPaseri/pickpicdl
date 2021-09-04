@@ -102,6 +102,7 @@ const getImgList = (document: Document) =>{
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
+          locale: location.href,
           blob: null,
           filesize: null,
           filename: filename,
@@ -128,6 +129,7 @@ const getImgList = (document: Document) =>{
         const [imgTrueUri, filename] = getimginfo(uri, location.href);
         return [imgTrueUri, {
           uri: imgTrueUri,
+          locale: location.href,
           blob: null,
           filesize: null,
           filename: filename,
@@ -155,6 +157,7 @@ const getImgList = (document: Document) =>{
               getimginfo(`data:image/svg+xml;base64,${base64}`, location.href);
             return [imgTrueUri, {
               uri: imgTrueUri,
+              locale: location.href,
               blob: null,
               filesize: null,
               filename: filename,
@@ -185,6 +188,7 @@ const getImgList = (document: Document) =>{
               getimginfo(base64URI, location.href);
             return [imgTrueUri, {
               uri: imgTrueUri,
+              locale: location.href,
               blob: null,
               filesize: null,
               filename: filename,
