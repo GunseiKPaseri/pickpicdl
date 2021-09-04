@@ -1,10 +1,15 @@
 import MaterialTable, {Action, Column} from 'material-table';
 import React, {CSSProperties} from 'react';
 import {lighten} from '@material-ui/core/styles/colorManipulator';
-import {useTheme} from '@material-ui/core';
+import {TextField, useTheme} from '@material-ui/core';
 import {CenterFocusWeak as CenterFocusWeakIcon} from '@material-ui/icons';
 import {useDispatch, useSelector} from 'react-redux';
-import {getSetHoverItemAction, getSetSelectedItemAction, State} from '../redux';
+import {
+  getRenameFileAction,
+  getSetHoverItemAction,
+  getSetSelectedItemAction,
+  State,
+} from '../redux';
 import {PicObjWithBlob} from '../type';
 import {selectElementCommand} from '../panel';
 
@@ -59,9 +64,11 @@ const ImgTable = ():JSX.Element => {
     {
       title: 'ファイル名',
       field: 'filename',
-      render: (rowData)=>
-        (rowData.filename.length > 15 ?
-          '...'+rowData.filename.slice(-15) : rowData.filename),
+      render: (rowData) =><TextField
+        defaultValue={rowData.filename}
+        onBlur={(e)=>{
+          dispatch(getRenameFileAction(rowData.uri, e.target.value));
+        }}/>,
     },
     {title: 'リソース', field: 'treeinfo', editable: 'never',
       render: (rowData)=>
