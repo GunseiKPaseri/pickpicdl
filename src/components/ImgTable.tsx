@@ -12,6 +12,7 @@ import {
 } from '../redux';
 import {PicObjWithBlob} from '../type';
 import {selectElementCommand} from '../panel';
+import {RegexFilter, regexFilterFunction} from './RegexFilter';
 
 const ImgStyle:CSSProperties = {
   objectFit: 'contain',
@@ -58,8 +59,18 @@ const ImgTable = ():JSX.Element => {
     {
       title: 'URI',
       field: 'uri',
-      render: (rowData)=><input type='url' value={rowData.uri} readOnly />,
+      render: (rowData)=>
+        <TextField
+          type='url'
+          value={rowData.uri}
+          size='small'
+          InputProps={{readOnly: true}} />,
       editable: 'never',
+      filterComponent: (props) =>
+        <RegexFilter
+          columnDef={props.columnDef}
+          onFilterChange={props.onFilterChanged} />,
+      customFilterAndSearch: regexFilterFunction,
     },
     {
       title: 'ファイル名',
@@ -69,11 +80,22 @@ const ImgTable = ():JSX.Element => {
         onBlur={(e)=>{
           dispatch(getRenameFileAction(rowData.uri, e.target.value));
         }}/>,
+      filterComponent: (props) =>
+        <RegexFilter
+          columnDef={props.columnDef}
+          onFilterChange={props.onFilterChanged} />,
+      customFilterAndSearch: regexFilterFunction,
     },
     {title: 'リソース', field: 'treeinfo', editable: 'never',
       render: (rowData)=>
         (rowData.treeinfo.length > 30 ?
-          '...'+rowData.treeinfo.slice(-30) : rowData.treeinfo)},
+          '...'+rowData.treeinfo.slice(-30) : rowData.treeinfo),
+      filterComponent: (props) =>
+        <RegexFilter
+          columnDef={props.columnDef}
+          onFilterChange={props.onFilterChanged} />,
+      customFilterAndSearch: regexFilterFunction,
+    },
   ]);
 
   const actions: Action<PicObjWithBlob>[] = [{
