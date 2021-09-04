@@ -2,7 +2,7 @@ import * as Message from './type';
 import browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
 import {str2bintxt} from './util/imgConverter';
-import {classPrefix} from './type';
+import {classPrefix, overEx} from './type';
 
 /*
 const getSHA256Digest = async (msg:string) => {
@@ -228,7 +228,12 @@ const sendImgList = () => {
 
 
 /* DOM SELECTOR */
-const markElement = document.createElement('div');
+const markElement = document.querySelector<HTMLDivElement>(`div.${overEx}`) ||
+    (()=>{
+      const newElement = document.createElement('div');
+      newElement.classList.add(`div.${overEx}`);
+      return newElement;
+    })();
 markElement.style.backgroundColor = 'rgba(175,223,228,0.5)';
 markElement.style.borderStyle = 'dashed';
 markElement.style.borderColor = '#0000FF';

@@ -38,6 +38,7 @@ export type MessageRemoveSelector = {
 
 
 export const classPrefix = '💟';
+export const overEx = `${classPrefix}884fc666-592d-4678-9f09-de0dd7a8d881`;
 
 export type Message =
   | MessageInit
