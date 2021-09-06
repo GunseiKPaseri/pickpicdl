@@ -5,7 +5,7 @@ import {
   //  getChangePasswordAction,
   getGenZipAction,
   State} from '../redux';
-import {makeStyles} from '@material-ui/core/styles';
+import {alpha, makeStyles} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   AppBar,
@@ -15,7 +15,7 @@ import {
   IconButton,
   InputLabel,
   Link,
-  MenuItem, Select, Toolbar, Tooltip} from '@material-ui/core';
+  MenuItem, Select, Toolbar, Tooltip, Typography} from '@material-ui/core';
 import {
   GetApp as GetAppIcon,
   Archive as ArchiveIcon} from '@material-ui/icons';
@@ -28,6 +28,28 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
+  },
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
+    },
+  },
+  selectlabel: {
+    'color': theme.palette.common.white,
+  },
+  select: {
+    'color': theme.palette.common.white,
+    'borderRadius': theme.shape.borderRadius,
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.common.black, 0.1),
+    },
+    '&:before': {
+      borderColor: theme.palette.common.white,
+    },
+    '&:after': {
+      borderColor: theme.palette.common.white,
+    },
   },
 }));
 
@@ -50,6 +72,9 @@ const App = ():JSX.Element => {
     <>
       <AppBar position='fixed'>
         <Toolbar>
+          <Typography className={classes.title} variant='h6' noWrap>
+            💟PicPickDL
+          </Typography>
           <Tooltip title={zip===null && selectedItems.length>0 ? '生成' : ''}>
             <IconButton color='inherit'
               disabled={zip!==null || selectedItems.length === 0}
@@ -61,10 +86,16 @@ const App = ():JSX.Element => {
             </IconButton>
           </Tooltip>
           <FormControl className={classes.formControl}>
-            <InputLabel htmlFor='converter-option'>形式変換</InputLabel>
+            <InputLabel
+              htmlFor='converter-option'
+              className={classes.selectlabel}>
+                形式変換
+            </InputLabel>
             <Select
               id='converter-option'
-              value={mime} onChange={handleMIMESelectChange}>
+              value={mime}
+              onChange={handleMIMESelectChange}
+              className={classes.select}>
               <MenuItem value=''>変換なし</MenuItem>
               <MenuItem value='image/png'>Pngに変換</MenuItem>
             </Select>
