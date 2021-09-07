@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {convertOption} from '../type';
 import {
+  getChangeThemeAction,
   getClearBlobURIAction,
   //  getChangePasswordAction,
   getGenZipAction,
@@ -25,6 +26,8 @@ import {
 import {
   GetApp as GetAppIcon,
   Archive as ArchiveIcon,
+  Brightness3 as Brightness3Icon,
+  Brightness5 as Brightness5Icon,
 } from '@material-ui/icons';
 import ImgTable from './ImgTable';
 import {ImgViewer} from './ImgViewer';
@@ -36,6 +39,9 @@ import {browser} from 'webextension-polyfill-ts';
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
+  grow: {
+    flexGrow: 1,
+  },
   formControl: {
     margin: theme.spacing(1),
     minWidth: 120,
@@ -76,7 +82,7 @@ const useStyles = makeStyles((theme) => ({
 const App = ():JSX.Element => {
   const classes = useStyles();
   // const {selectedItems, zip, password} =
-  const {selectedItems, zip, hovering} =
+  const {selectedItems, zip, hovering, themetype} =
     useSelector<State, State>((state)=>state);
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -170,6 +176,21 @@ const App = ():JSX.Element => {
               </Button>
             </Link>
           }
+          <div className={classes.grow} />
+          <Tooltip title={
+            themetype === 'dark' ? 'switch to light' : 'switch to dark'
+          }>
+            <IconButton color='inherit'
+              onClick={()=>{
+                if (themetype === 'dark') {
+                  dispatch(getChangeThemeAction('light'));
+                } else {
+                  dispatch(getChangeThemeAction('dark'));
+                }
+              }}>
+              {themetype === 'dark' ? <Brightness3Icon /> : <Brightness5Icon />}
+            </IconButton>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <div className={classes.offset} />

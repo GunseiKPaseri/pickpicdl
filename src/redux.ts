@@ -16,6 +16,7 @@ const ActionTypes = {
   REQUEST_GEN_ZIP: `${AppPrefix}REQUEST_GEN_ZIP`,
   RESPONSE_GEN_ZIP: `${AppPrefix}RESPONSE_GEN_ZIP`,
   SET_HOVER_ITEM: `${AppPrefix}SET_HOVER_ITEM`,
+  CHANGE_THEME: `${AppPrefix}CHANGE_THEME`,
 } as const;
 
 // define Action & ActionGenerator
@@ -131,6 +132,17 @@ export const getSetHoverItemAction =
     props: item,
   });
 
+// CHANGE_THEME
+interface changeThemeAction extends Action {
+  type: typeof ActionTypes.CHANGE_THEME,
+  props: {themetype: 'dark'|'light'},
+}
+export const getChangeThemeAction =
+  (themetype: 'dark'|'light'):changeThemeAction => ({
+    type: ActionTypes.CHANGE_THEME,
+    props: {themetype},
+  });
+
 // total
 type AppActions =
   setUrlAction |
@@ -143,7 +155,8 @@ type AppActions =
   clearBlobURIAction |
   requestGenZip |
   responseGenZip |
-  setHoverItem;
+  setHoverItem |
+  changeThemeAction;
 
 // Saga
 
@@ -196,6 +209,7 @@ export type State = {
   zip: null | 'loading' | {uri: string, generated: Date};
   password: string;
   hovering: HoveringItem | null;
+  themetype: 'dark' | 'light';
 };
 export const initialState:State = {
   url: '',
@@ -205,6 +219,7 @@ export const initialState:State = {
   zip: null,
   password: '',
   hovering: null,
+  themetype: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
 };
 
 export const reducer = (state=initialState, action: AppActions):State=>{
@@ -279,6 +294,12 @@ export const reducer = (state=initialState, action: AppActions):State=>{
       return {
         ...state,
         hovering: (action.props ? {...action.props} : null),
+      };
+    case ActionTypes.CHANGE_THEME:
+      localStorage.setItem('theme', action.props.themetype);
+      return {
+        ...state,
+        themetype: action.props.themetype,
       };
     default: return state;
   }

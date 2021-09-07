@@ -226,7 +226,7 @@ const sendImgList = () => {
   };
   // _port.postMessage(message);
   browser.runtime.sendMessage(message).then((res) =>{
-    console.log(res);
+    // console.log(res);
   });
 };
 

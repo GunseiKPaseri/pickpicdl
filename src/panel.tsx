@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 
 import {createTheme, ThemeProvider} from '@material-ui/core';
 
-import {Provider} from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
 import {
   getAddBadURIsAction,
   getAddItemsAction,
@@ -11,6 +11,7 @@ import {
   initialState,
   reducer,
   rootSaga,
+  State,
 } from './redux';
 import App from './components/App';
 import {Message, PicObj, PicObjWithBlob} from './type';
@@ -77,16 +78,29 @@ export const selectElementCommand = (selector: string)=> {
 
 // Render
 
+const AppWithTheme = () => {
+  const themetype = useSelector<State, 'dark'|'light'>(
+      (state)=>state.themetype);
+  const theme = createTheme({
+    palette: {
+      type: themetype,
+    },
+  });
+  return (
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
+  );
+};
+
 const Root = () => {
-  const theme = createTheme();
   return (
     <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <AppWithTheme />
     </Provider>
   );
 };
+
 
 ReactDOM.render(<Root />, document.querySelector('#app'));
 
