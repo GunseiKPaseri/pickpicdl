@@ -1,5 +1,5 @@
 import {Action} from 'redux';
-import {convertOption, HoveringItem, PicObjWithBlob} from './type';
+import {convertOption, HoveringItem, PicObjWithBlob, PicObjWithoutBlob} from './type';
 
 // define ActionTypes
 const AppPrefix = '@@picpickdl/' as const;
@@ -53,12 +53,12 @@ export const getAddItemsAction = (items: PicObjWithBlob[]):addItemsAction => ({
 // RENAME_FILE
 interface renameFileAction extends Action {
   type: typeof ActionTypes.RENAME_FILE,
-  props: {uri: string, filename: string},
+  props: {uri: string, filename: string}[],
 }
 export const getRenameFileAction =
-  (uri: string, filename: string):renameFileAction => ({
+  (set: {uri: string, filename: string}[]):renameFileAction => ({
     type: ActionTypes.RENAME_FILE,
-    props: {uri, filename},
+    props: set,
   });
 
 // ADD_BAD_URIS
@@ -241,18 +241,16 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         baduri: new Set(Array.from(state.baduri)),
       };
     case ActionTypes.RENAME_FILE:
-      if (!state.items[action.props.uri]) return state;
       return {
         ...state,
-        items: {
-          ...state.items,
-          [action.props.uri]:
-            {
-              ...state.items[action.props.uri],
-              filename: action.props.filename,
-            },
-        },
-        baduri: new Set(Array.from(state.baduri)),
+        items: Object.fromEntries([
+          ...Object.entries(state.items),
+          ...action.props
+              .flatMap<[string, PicObjWithBlob]>(({uri, filename})=>{
+                const y = state.items[uri];
+                return (y ? [[uri, {...y, filename}]] : []);
+              }),
+        ]),
       };
     case ActionTypes.ADD_BAD_URIS:
       return {

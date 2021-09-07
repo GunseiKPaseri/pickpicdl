@@ -32,8 +32,9 @@ const ImgStyle:CSSProperties = {
 const ImgTable = ():JSX.Element => {
   const theme = useTheme();
   // Redux State
-  const list = useSelector<State, PicObjWithBlob[]>((state) =>
-    Object.keys(state.items).map((key)=>state.items[key]));
+  const listobj = useSelector<State, {[keyof: string]: PicObjWithBlob}>(
+      (state) => state.items);
+  const list = Object.keys(listobj).map((key)=>listobj[key]);
   const [columnObject] = React.useState<Column<PicObjWithBlob>[]>([
     {
       title: '画像',
@@ -78,7 +79,8 @@ const ImgTable = ():JSX.Element => {
       render: (rowData) =><TextField
         defaultValue={rowData.filename}
         onBlur={(e)=>{
-          dispatch(getRenameFileAction(rowData.uri, e.target.value));
+          dispatch(getRenameFileAction(
+              [{uri: rowData.uri, filename: e.target.value}]));
         }}/>,
       filterComponent: (props) =>
         <RegexFilter

@@ -3,15 +3,17 @@ import {CSSProperties} from 'react';
 import {useSelector} from 'react-redux';
 import {State} from '../redux';
 
-const width = 200;
-const height = 200;
+const width = 500;
+const height = 500;
 
 export const ImgViewer = ():JSX.Element => {
   const hoveringItem = useSelector((state: State)=>state.hovering);
   if (hoveringItem===null) return (<></>);
   const viewerStyle: CSSProperties = {
     position: 'absolute',
-    top: hoveringItem.top - height/2,
+    top: Math.min(
+        Math.max(hoveringItem.top - height/2, 0),
+        document.body.clientHeight - height),
     left: hoveringItem.left,
     zIndex: 100,
     width,
