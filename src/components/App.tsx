@@ -162,7 +162,7 @@ const App = ():JSX.Element => {
             <Link
               color='inherit'
               href={zip.uri}
-              download
+              download="download.zip"
               underline='none'>
               <Button color='inherit' startIcon={<GetAppIcon />}>
                 {browser.i18n.getMessage('DOWNLOAD') +

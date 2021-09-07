@@ -151,6 +151,7 @@ import {takeLatest, call, put, all, fork, select} from 'redux-saga/effects';
 import {generateZipBlob} from './util/zipblob';
 import {imgConverter} from './util/imgConverter';
 import {changeExt, mime2ext} from './util/mime2ext';
+import {blob2base64} from './util/blobutil';
 
 // ZIP_DL_LINK
 // eslint-disable-next-line require-jsdoc
@@ -171,7 +172,8 @@ function* genZipFile({props}: genZip) {
   // genZip
   const zipBlob: Blob =
     yield call(generateZipBlob, files, 'generated_zip_file', password);
-  yield put(getResponseGenZipAction(URL.createObjectURL(zipBlob)));
+  const base64: string = yield call(blob2base64, zipBlob);
+  yield put(getResponseGenZipAction(base64));
 }
 // eslint-disable-next-line require-jsdoc
 function* watchGenZipFile() {
