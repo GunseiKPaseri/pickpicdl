@@ -1,5 +1,6 @@
 import {Action} from 'redux';
-import {convertOption, HoveringItem, PicObjWithBlob, PicObjWithoutBlob} from './type';
+import {
+  convertOption, HoveringItem, PicObjWithBlob} from './type';
 
 // define ActionTypes
 const AppPrefix = '@@picpickdl/' as const;

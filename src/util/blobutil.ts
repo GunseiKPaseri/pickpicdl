@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 export const imglink2Blob = (uri: string ) =>
   new Promise<Blob>((resolve, reject)=>{
     if (uri.indexOf('data:') === 0) {
@@ -23,7 +25,11 @@ export const blob2base64 = (blob: Blob) =>
   new Promise<string>((resolve, reject)=>{
     const fileReader = new FileReader();
     fileReader.onload = function() {
-      if (this.result === null) reject(new Error('can\'t blob2base64'));
+      if (this.result === null) {
+        reject(new Error(
+            browser.i18n.getMessage('cantBlob2Base64'),
+        ));
+      }
       resolve(this.result as string);
     };
     fileReader.readAsDataURL(blob);
@@ -49,7 +55,10 @@ export const imgelement2blob =
     canvas.width = imgElement.width;
     ctx?.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
     canvas.toBlob((blob)=>{
-      if (blob===null) reject(new Error('Blobを作成できませんでした'));
-      else resolve(blob);
+      if (blob===null) {
+        reject(new Error(
+            browser.i18n.getMessage('cantMakeBlob'),
+        ));
+      } else resolve(blob);
     }, mimeType, qualityArgument);
   });

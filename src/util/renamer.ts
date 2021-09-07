@@ -1,6 +1,6 @@
 import {PicObjWithBlob} from '../type';
 
-const getfilename = (prop: string, x: PicObjWithBlob, i: number) => 
+const getfilename = (prop: string, x: PicObjWithBlob, i: number) =>
   prop
       // file index
       .replace(/%([0_\s]?)(\d+)d/g, (_, holder, spacelen) => {

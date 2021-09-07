@@ -1,9 +1,10 @@
-import {IconButton, Input, InputAdornment} from '@material-ui/core';
+import {IconButton, Input, InputAdornment, Tooltip} from '@material-ui/core';
 import {FilterList as FilterListIcon} from '@material-ui/icons';
 import {Icon} from '@iconify/react';
 import regexIcon from '@iconify/icons-codicon/regex';
 import React from 'react';
 import {Column} from 'material-table';
+import browser from 'webextension-polyfill';
 
 const NormalMode = 'normal';
 const RegexMode = 'regex';
@@ -41,13 +42,15 @@ const regexFilter = (filterValue: string, value:string, mode: Mode) =>{
 };
 
 export const regexFilterFunction = <RowData extends Object>
-  (filterValue: FilterValue,
+  (filterValue: FilterValue | string,
     rowData: {[key: string]: any},
     columnDef: Column<RowData>):boolean => {
   if (columnDef.field === undefined) return false;
   const value: string = rowData[columnDef.field as string];
   if (typeof value !== 'string') return false;
-  return regexFilter(filterValue.value, value, filterValue.mode);
+  return (typeof filterValue === 'string' ?
+      regexFilter(filterValue, value, NormalMode) :
+      regexFilter(filterValue.value, value, filterValue.mode));
 };
 
 export const RegexFilter =
@@ -73,12 +76,16 @@ export const RegexFilter =
       <Input
         onChange={handleChange}
         endAdornment={
-          <InputAdornment position="end">
-            <IconButton onMouseDown={handleMouseDown} value={value}>
-              {mode === RegexMode ?
-                <Icon icon={regexIcon} /> : <FilterListIcon />}
-            </IconButton>
-          </InputAdornment>
+          <Tooltip title={mode === RegexMode ?
+            browser.i18n.getMessage('Switch2Normal') :
+            browser.i18n.getMessage('Switch2Regex')}>
+            <InputAdornment position="end">
+              <IconButton onMouseDown={handleMouseDown} value={value}>
+                {mode === RegexMode ?
+                  <Icon icon={regexIcon} /> : <FilterListIcon />}
+              </IconButton>
+            </InputAdornment>
+          </Tooltip>
         }
       />
     );

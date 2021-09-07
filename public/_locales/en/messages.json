@@ -1,0 +1,100 @@
+{
+  "rows": {
+    "message": "rows"
+  },
+  "RENAME": {
+    "message": "Rename"
+  },
+  "FILENAME": {
+    "message": "FileName"
+  },
+  "GENERATE": {
+    "message": "Generate"
+  },
+  "CONVERT": {
+    "message": "Convert"
+  },
+  "NOCONVERT": {
+    "message": "No Convert"
+  },
+  "DOWNLOAD": {
+    "message": "Download"
+  },
+  "IMAGE": {
+    "message": "Image"
+  },
+  "RESOURCE": {
+    "message": "Resource"
+  },
+  "FOCUS": {
+    "message": "Focus"
+  },
+  "SEARCH": {
+    "message": "Search"
+  },
+  "CLEAR": {
+    "message": "Clear"
+  },
+  "CONVERT2": {
+    "message": "Convert to $type$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "png"
+      }
+    }
+  },
+  "selectLabel": {
+    "message": "$cnt$ row(s) selected",
+    "placeholders": {
+      "cnt": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pagelabel": {
+    "message": "$from$-$to$ of $count$",
+    "placeholders": {
+      "from": {
+        "content": "$1",
+        "example": "1"
+      },
+      "to": {
+        "content": "$2",
+        "example": "10"
+      },
+      "count": {
+        "content": "$3",
+        "example": "100"
+      }
+    }
+  },
+  "Switch2Normal": {
+    "message": "Switch to Filter Mode"
+  },
+  "Switch2Regex": {
+    "message": "Switch to Regex Mode"
+  },
+  "FirstPage": {
+    "message": "First Page"
+  },
+  "PreviousPage": {
+    "message": "Previous Page"
+  },
+  "NextPage": {
+    "message": "Next Page"
+  },
+  "LastPage": {
+    "message": "Last Page"
+  },
+  "NoRecordsToDisplay": {
+    "message": "No records to display."
+  },
+  "cantMakeBlob": {
+    "message": "Can't make Blob."
+  },
+  "cantBlob2Base64": {
+    "message": "Can't convert Blob to Base64."
+  }
+}

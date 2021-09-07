@@ -13,6 +13,7 @@ import {
 import {PicObjWithBlob} from '../type';
 import {selectElementCommand} from '../panel';
 import {RegexFilter, regexFilterFunction} from './RegexFilter';
+import browser from 'webextension-polyfill';
 
 const ImgStyle:CSSProperties = {
   objectFit: 'contain',
@@ -37,7 +38,7 @@ const ImgTable = ():JSX.Element => {
   const list = Object.keys(listobj).map((key)=>listobj[key]);
   const [columnObject] = React.useState<Column<PicObjWithBlob>[]>([
     {
-      title: '画像',
+      title: browser.i18n.getMessage('IMAGE'),
       render: (rowData) =>
         <img
           src={rowData.uri}
@@ -74,7 +75,7 @@ const ImgTable = ():JSX.Element => {
       customFilterAndSearch: regexFilterFunction,
     },
     {
-      title: 'ファイル名',
+      title: browser.i18n.getMessage('FILENAME'),
       field: 'filename',
       render: (rowData) =><TextField
         defaultValue={rowData.filename}
@@ -88,7 +89,10 @@ const ImgTable = ():JSX.Element => {
           onFilterChange={props.onFilterChanged} />,
       customFilterAndSearch: regexFilterFunction,
     },
-    {title: 'リソース', field: 'treeinfo', editable: 'never',
+    {
+      title: browser.i18n.getMessage('RESOURCE'),
+      field: 'treeinfo',
+      editable: 'never',
       render: (rowData)=>
         (rowData.treeinfo.length > 30 ?
           '...'+rowData.treeinfo.slice(-30) : rowData.treeinfo),
@@ -102,7 +106,7 @@ const ImgTable = ():JSX.Element => {
 
   const actions: Action<PicObjWithBlob>[] = [{
     icon: () => <CenterFocusWeakIcon />,
-    tooltip: '選択',
+    tooltip: browser.i18n.getMessage('FOCUS'),
     onClick: (e, rowDatas)=>{
       if (Array.isArray(rowDatas)) {
         //
@@ -126,7 +130,24 @@ const ImgTable = ():JSX.Element => {
       }),
     }}
     localization={{
+      pagination: {
+        firstTooltip: browser.i18n.getMessage('FirstPage'),
+        previousTooltip: browser.i18n.getMessage('PreviousPage'),
+        nextTooltip: browser.i18n.getMessage('NextPage'),
+        lastTooltip: browser.i18n.getMessage('LastPage'),
+        labelRowsSelect: browser.i18n.getMessage('rows'),
+        labelDisplayedRows: browser.i18n.getMessage(
+            'pagelabel', ['{from}', '{to}', '{count}']),
+      },
       header: {actions: ''},
+      toolbar: {
+        nRowsSelected: browser.i18n.getMessage('selectLabel', '{0}'),
+        searchTooltip: browser.i18n.getMessage('SEARCH'),
+        searchPlaceholder: browser.i18n.getMessage('SEARCH'),
+      },
+      body: {
+        emptyDataSourceMessage: browser.i18n.getMessage('NoRecordsToDisplay'),
+      },
     }}
     onSelectionChange={(data) => dispatch(getSetSelectedItemAction(data))}
     columns={columnObject}

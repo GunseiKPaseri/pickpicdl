@@ -1,0 +1,100 @@
+{
+  "rows": {
+    "message": "行"
+  },
+  "RENAME": {
+    "message": "名前を変更"
+  },
+  "FILENAME": {
+    "message": "ファイル名"
+  },
+  "GENERATE": {
+    "message": "生成"
+  },
+  "CONVERT": {
+    "message": "形式変換"
+  },
+  "NOCONVERT": {
+    "message": "変換無し"
+  },
+  "DOWNLOAD": {
+    "message": "ダウンロード"
+  },
+  "IMAGE": {
+    "message": "画像"
+  },
+  "RESOURCE": {
+    "message": "リソース"
+  },
+  "FOCUS": {
+    "message": "フォーカス"
+  },
+  "SEARCH": {
+    "message": "検索"
+  },
+  "CLEAR": {
+    "message": "クリア"
+  },
+  "CONVERT2": {
+    "message": "$type$に変換",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "png"
+      }
+    }
+  },
+  "selectLabel": {
+    "message": "$cnt$行を選択中",
+    "placeholders": {
+      "cnt": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pagelabel": {
+    "message": "$from$-$to$(全$count$件)",
+    "placeholders": {
+      "from": {
+        "content": "$1",
+        "example": "1"
+      },
+      "to": {
+        "content": "$2",
+        "example": "10"
+      },
+      "count": {
+        "content": "$3",
+        "example": "100"
+      }
+    }
+  },
+  "Switch2Normal": {
+    "message": "フィルタモードに切替"
+  },
+  "Switch2Regex": {
+    "message": "正規表現モードに切替"
+  },
+  "FirstPage": {
+    "message": "先頭ページ"
+  },
+  "PreviousPage": {
+    "message": "前のページ"
+  },
+  "NextPage": {
+    "message": "次のページ"
+  },
+  "LastPage": {
+    "message": "最終ページ"
+  },
+  "NoRecordsToDisplay": {
+    "message": "該当するものは存在しません"
+  },
+  "cantMakeBlob": {
+    "message": "Blobを作成できませんでした"
+  },
+  "cantBlob2Base64": {
+    "message": "BlobをBase64に変換できませんでした"
+  }
+}

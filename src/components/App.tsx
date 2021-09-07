@@ -16,18 +16,22 @@ import {
   IconButton,
   InputLabel,
   Link,
-  MenuItem, Select, TextField, Toolbar, Tooltip, Typography} from '@material-ui/core';
+  MenuItem,
+  Select,
+  TextField,
+  Toolbar,
+  Tooltip,
+  Typography} from '@material-ui/core';
 import {
   GetApp as GetAppIcon,
   Archive as ArchiveIcon,
-  Label,
-  CodeSharp} from '@material-ui/icons';
+} from '@material-ui/icons';
 import ImgTable from './ImgTable';
 import {ImgViewer} from './ImgViewer';
 import {Icon} from '@iconify/react';
 import formTextboxIcon from '@iconify/icons-mdi/form-textbox';
-import { theme } from 'webextension-polyfill';
-import { renamer } from '../util/renamer';
+import {renamer} from '../util/renamer';
+import {browser} from 'webextension-polyfill-ts';
 // import {PasswordForm} from './PasswordForm';
 
 const useStyles = makeStyles((theme) => ({
@@ -93,7 +97,9 @@ const App = ():JSX.Element => {
           <Typography className={classes.title} variant='h6' noWrap>
             💟PicPickDL
           </Typography>
-          <Tooltip title={selectedItems.length>0 ? '名前を変更' : ''}>
+          <Tooltip title={
+            selectedItems.length>0 ? browser.i18n.getMessage('RENAME') : ''
+          }>
             <IconButton color='inherit'
               disabled={selectedItems.length === 0}
               onClick={selectedItems.length>0 ? ()=>{
@@ -110,12 +116,15 @@ const App = ():JSX.Element => {
             </IconButton>
           </Tooltip>
           <TextField className={classes.textField}
-            label='ファイル名'
+            label={browser.i18n.getMessage('FILENAME')}
             value={rename}
             onChange={(e)=>{
               setRename(e.target.value);
             }} />
-          <Tooltip title={zip===null && selectedItems.length>0 ? '生成' : ''}>
+          <Tooltip title={
+              zip===null && selectedItems.length>0 ?
+                browser.i18n.getMessage('GENERATE') : ''
+          }>
             <IconButton color='inherit'
               disabled={zip!==null || selectedItems.length === 0}
               onClick={zip===null && selectedItems.length>0 ? ()=>{
@@ -129,15 +138,18 @@ const App = ():JSX.Element => {
             <InputLabel
               htmlFor='converter-option'
               className={classes.label}>
-                形式変換
+              {browser.i18n.getMessage('CONVERT')}
             </InputLabel>
             <Select
               id='converter-option'
               value={mime}
               onChange={handleMIMESelectChange}
               className={classes.select}>
-              <MenuItem value=''>変換なし</MenuItem>
-              <MenuItem value='image/png'>Pngに変換</MenuItem>
+              <MenuItem value=''>
+                {browser.i18n.getMessage('NOCONVERT')}</MenuItem>
+              <MenuItem value='image/png'>
+                {browser.i18n.getMessage('CONVERT2', 'png')}
+              </MenuItem>
             </Select>
           </FormControl>
           {/*
@@ -153,7 +165,8 @@ const App = ():JSX.Element => {
               download
               underline='none'>
               <Button color='inherit' startIcon={<GetAppIcon />}>
-                ダウンロード({zip.generated.toLocaleString('ja-JP')})
+                {browser.i18n.getMessage('DOWNLOAD') +
+                '('+zip.generated.toLocaleString('ja-JP') +')'}
               </Button>
             </Link>
           }
