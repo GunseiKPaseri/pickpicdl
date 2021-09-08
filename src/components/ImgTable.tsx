@@ -122,6 +122,8 @@ const ImgTable = ():JSX.Element => {
       filtering: true,
       selection: true,
       showTitle: false,
+      // sorting has some bug
+      sorting: false,
       rowStyle: (rowData) => ({
         backgroundColor:
             rowData.tableData.checked ?

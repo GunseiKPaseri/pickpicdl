@@ -233,17 +233,11 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         baduri: new Set(Array.from(state.baduri)),
       };
     case ActionTypes.CLEAR_BLOBURI:
-      if (typeof state.zip === 'string') {
-        URL.revokeObjectURL(state.zip);
-      }
       return {
         ...state,
         zip: null,
       };
     case ActionTypes.SET_SELECTED_ITEM:
-      if (typeof state.zip === 'string') {
-        URL.revokeObjectURL(state.zip);
-      }
       return {
         ...state,
         selectedItems: action.props.items,
