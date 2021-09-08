@@ -1,7 +1,5 @@
 import * as React from 'react';
-import {State} from '../redux';
 import {makeStyles} from '@material-ui/core/styles';
-import {useSelector} from 'react-redux';
 import {
   AppBar,
   Toolbar,
@@ -11,8 +9,6 @@ import {ImgViewer} from './ImgViewer';
 import {ThemeChanger} from './ThemeChanger';
 import {FilenameChanger} from './FilenameChanger';
 import {ZipGenerator} from './ZipGenerator';
-import {HoveringItem} from '../type';
-// import {PasswordForm} from './PasswordForm';
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
@@ -30,8 +26,6 @@ const useStyles = makeStyles((theme) => ({
 const App = ():JSX.Element => {
   const classes = useStyles();
   // const {selectedItems, zip, password} =
-  const hovering =
-    useSelector<State, HoveringItem | null>((state)=>state.hovering);
   return (
     <>
       <AppBar position='fixed'>
@@ -47,7 +41,7 @@ const App = ():JSX.Element => {
       </AppBar>
       <div className={classes.offset} />
       <ImgTable />
-      {hovering && <ImgViewer />}
+      <ImgViewer />
     </>
   );
 };
