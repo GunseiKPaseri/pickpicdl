@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import {createTheme, ThemeProvider} from '@material-ui/core';
+import {createTheme, CssBaseline, ThemeProvider} from '@material-ui/core';
 
 import {Provider, useSelector} from 'react-redux';
 import {
@@ -96,6 +96,7 @@ const AppWithTheme = () => {
 const Root = () => {
   return (
     <Provider store={store}>
+      <CssBaseline />
       <AppWithTheme />
     </Provider>
   );

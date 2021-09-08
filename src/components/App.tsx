@@ -121,12 +121,15 @@ const App = ():JSX.Element => {
               />
             </IconButton>
           </Tooltip>
-          <TextField className={classes.textField}
+          <TextField
             label={browser.i18n.getMessage('FILENAME')}
             value={rename}
             onChange={(e)=>{
               setRename(e.target.value);
-            }} />
+            }}
+            InputProps={{
+              className: classes.textField,
+            }}/>
           <Tooltip title={
               zip===null && selectedItems.length>0 ?
                 browser.i18n.getMessage('GENERATE') : ''
@@ -178,7 +181,9 @@ const App = ():JSX.Element => {
           }
           <div className={classes.grow} />
           <Tooltip title={
-            themetype === 'dark' ? 'switch to light' : 'switch to dark'
+            themetype === 'dark' ?
+              browser.i18n.getMessage('Switch2Light') :
+              browser.i18n.getMessage('Switch2Dark')
           }>
             <IconButton color='inherit'
               onClick={()=>{

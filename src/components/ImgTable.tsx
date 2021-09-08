@@ -1,6 +1,6 @@
 import MaterialTable, {Action, Column} from 'material-table';
 import React, {CSSProperties} from 'react';
-import {lighten} from '@material-ui/core/styles/colorManipulator';
+import {alpha} from '@material-ui/core/styles/colorManipulator';
 import {TextField, useTheme} from '@material-ui/core';
 import {CenterFocusWeak as CenterFocusWeakIcon} from '@material-ui/icons';
 import {useDispatch, useSelector} from 'react-redux';
@@ -33,9 +33,8 @@ const ImgStyle:CSSProperties = {
 const ImgTable = ():JSX.Element => {
   const theme = useTheme();
   // Redux State
-  const listobj = useSelector<State, {[keyof: string]: PicObjWithBlob}>(
-      (state) => state.items);
-  const list = Object.keys(listobj).map((key)=>listobj[key]);
+  const {items, themetype} = useSelector<State, State>((state) => state);
+  const list = Object.keys(items).map((key)=>items[key]);
   const [columnObject] = React.useState<Column<PicObjWithBlob>[]>([
     {
       title: browser.i18n.getMessage('IMAGE'),
@@ -126,7 +125,9 @@ const ImgTable = ():JSX.Element => {
       rowStyle: (rowData) => ({
         backgroundColor:
             rowData.tableData.checked ?
-            lighten(theme.palette.secondary.light, 0.85) : '',
+            alpha(themetype === 'dark' ?
+                theme.palette.common.white :
+                theme.palette.common.black, 0.25) : '',
       }),
     }}
     localization={{

@@ -76,6 +76,12 @@
   "Switch2Regex": {
     "message": "正規表現モードに切替"
   },
+  "Switch2Light": {
+    "message": "ライトモードに切替"
+  },
+  "Switch2Dark": {
+    "message": "ダークモードに切替"
+  },
   "FirstPage": {
     "message": "先頭ページ"
   },

@@ -76,6 +76,12 @@
   "Switch2Regex": {
     "message": "Switch to Regex Mode"
   },
+  "Switch2Light": {
+    "message": "Switch to Light Mode"
+  },
+  "Switch2Dark": {
+    "message": "Switch to Dark Mode"
+  },
   "FirstPage": {
     "message": "First Page"
   },
