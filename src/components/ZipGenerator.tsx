@@ -23,6 +23,7 @@ import {
   MenuItem,
   Select,
   Tooltip} from '@material-ui/core';
+import {genZipFileName} from '../util/renamer';
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -60,6 +61,13 @@ export const ZipGenerator = () => {
         setMime(e.target.value);
       }
     };
+  const handleDragLink = (e: React.DragEvent<HTMLAnchorElement>) => {
+    if (zip===null || zip ==='loading') return;
+    console.log(zip.uri);
+    e.dataTransfer.setData(
+        'DownloadURL',
+        `application/zip:${genZipFileName(zip.generated)}:${zip.uri}`);
+  };
   return (<>
     <Tooltip title={
         zip===null && selectedItems.length>0 ?
@@ -102,8 +110,9 @@ export const ZipGenerator = () => {
       <Link
         color='inherit'
         href={zip.uri}
-        download="download.zip"
-        underline='none'>
+        download={genZipFileName(zip.generated)}
+        underline='none'
+        onDragStart={handleDragLink}>
         <Button color='inherit' startIcon={<GetAppIcon />}>
           {browser.i18n.getMessage('DOWNLOAD') +
           '('+zip.generated.toLocaleString('ja-JP') +')'}
