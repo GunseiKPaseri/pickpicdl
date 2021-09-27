@@ -16,7 +16,7 @@ import {
 import App from './components/App';
 import {Message, PicObj, PicObjWithBlob} from './type';
 import {imglink2Blob} from './util/blobutil';
-import {mime2ext} from './util/mime2ext';
+import {changeExt, mime2ext} from './util/mime2ext';
 import {applyMiddleware, createStore, compose} from 'redux';
 import createSaga from 'redux-saga';
 import {browser} from 'webextension-polyfill-ts';
@@ -56,7 +56,9 @@ backgroundPageConnection.onMessage.addListener((message: Message)=>{
           const ext = mime2ext(blob.type);
           if (!ext) return ['bad', uriEntry];
           const newItem:PicObjWithBlob =
-            {...item, blob, filesize: blob.size};
+            {...item, blob,
+              filename: changeExt(item.filename, mime2ext(blob.type)),
+              filesize: blob.size};
           return newItem;
         }));
     Promise.all(promises).then((results)=>{
