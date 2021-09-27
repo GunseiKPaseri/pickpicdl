@@ -165,6 +165,7 @@ import {generateZipBlob} from './util/zipblob';
 import {imgConverter} from './util/imgConverter';
 import {changeExt, mime2ext} from './util/mime2ext';
 import {blob2base64} from './util/blobutil';
+import {storageAvailable} from './util/env';
 
 // ZIP_DL_LINK
 // eslint-disable-next-line require-jsdoc
@@ -219,7 +220,9 @@ export const initialState:State = {
   zip: null,
   password: '',
   hovering: null,
-  themetype: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
+  themetype:
+    storageAvailable('localStorage') &&
+      localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
 };
 
 export const reducer = (state=initialState, action: AppActions):State=>{
@@ -290,7 +293,8 @@ export const reducer = (state=initialState, action: AppActions):State=>{
         hovering: (action.props ? {...action.props} : null),
       };
     case ActionTypes.CHANGE_THEME:
-      localStorage.setItem('theme', action.props.themetype);
+      storageAvailable('localStorage') &&
+        localStorage.setItem('theme', action.props.themetype);
       return {
         ...state,
         themetype: action.props.themetype,
