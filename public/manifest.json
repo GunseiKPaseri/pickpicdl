@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "PicPickDL",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ページ内の画像をいい感じにダウンロード",
   "default_locale": "en",
   "icons": {
