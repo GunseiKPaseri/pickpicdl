@@ -40,6 +40,7 @@ const ImgTable = ():JSX.Element => {
       title: browser.i18n.getMessage('IMAGE'),
       render: (rowData) =>
         <img
+          title={rowData.blob.type}
           src={rowData.uri}
           style={ImgStyle}
           onMouseEnter={(e) => {

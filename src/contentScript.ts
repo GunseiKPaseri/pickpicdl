@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill';
 import {v4 as uuidv4} from 'uuid';
 import {str2bintxt} from './util/imgConverter';
 import {classPrefix, overEx} from './type';
+import {changeExt, mime2ext} from './util/mime2ext';
 
 /*
 const getSHA256Digest = async (msg:string) => {
@@ -80,12 +81,13 @@ const getNodeTreeMemo =
 
 const getimginfo = (imgUri: string, base: string )=>{
   if (imgUri.indexOf('data:') == 0) {
-    return [imgUri, 'data-uri'];
+    return [imgUri,
+      changeExt('image', mime2ext(imgUri.slice(5, imgUri.indexOf(';'))))];
   }
   const imgTrueUri:string = (new URL(imgUri, base)).toString();
   const filename =
     imgTrueUri.match(/.+\/(.+?)([\?#;].*)?$/)?.[1] || 'anyfile';
-  return [imgTrueUri, filename];
+  return [imgTrueUri, filename.slice(-100)];
 };
 
 const getImgList = (document: Document) =>{

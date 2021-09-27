@@ -15,3 +15,6 @@ export const renamer =
       return {uri: x.uri, filename: getfilename(prop, x, i)};
     });
   };
+
+export const genZipFileName = (d: Date) =>
+  `${d.toISOString().split('.')[0].replace(/:/g, '')}.zip`;
