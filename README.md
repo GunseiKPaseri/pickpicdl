@@ -1,19 +1,19 @@
 # <img src="public/icons/icon_48.png" width="45" align="left"> Picpickdl
 
-My Chrome Extension
+My Browser Extension
 
 ## Features
 
-- Feature 1
-- Feature 2
+- Pick up pictures in browser
 
 ## Install
 
-[**Chrome** extension]() <!-- TODO: Add chrome extension link inside parenthesis -->
+[**Chrome** extension](https://chrome.google.com/webstore/detail/picpickdl/blmeebooelogdcajapgeiooajiphebpp) <!-- TODO: Add chrome extension link inside parenthesis -->
 
 ## Contribution
 
-Suggestions and pull requests are welcomed!.
+Suggestions and pull requests are welcomed!. 
+(I'll merge if possible)
 
 ---
 
